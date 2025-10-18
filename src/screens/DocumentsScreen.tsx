@@ -32,7 +32,7 @@ export default function DocumentsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.header}>
+          <View style={styles.headerContainer}>
             <Text style={styles.headerTitle}>Upload Document</Text>
           </View>
           
@@ -76,19 +76,22 @@ export default function DocumentsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
+    flex: 1,
     backgroundColor: colors.screenBackground, 
   },
   scrollContainer: {
     padding: 20,
   },
-  header: {
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
     alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 16,
