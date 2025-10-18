@@ -26,6 +26,7 @@ export default function BottomAppNavigator() {
           component={HomeScreen} 
           options={{ 
             title: 'Home',
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="home" color={color} size={size} />
             ) 
@@ -36,6 +37,7 @@ export default function BottomAppNavigator() {
           component={DocumentsScreen} 
           options={{ 
             title: 'Documents',
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="document" color={color} size={size} />
             )
@@ -44,7 +46,9 @@ export default function BottomAppNavigator() {
         <Tab.Screen 
           name="Schedule" 
           component={ScheduleScreen} 
-          options={{ title: 'Schedule',
+          options={{ 
+            title: 'Schedule',
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="calendar" color={color} size={size} />
             )
@@ -54,7 +58,9 @@ export default function BottomAppNavigator() {
         <Tab.Screen 
           name="Profile" 
           component={ProfileScreen} 
-          options={{ title: 'Profile',
+          options={{ 
+            title: 'Profile',
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="person" color={color} size={size} />
             )

@@ -15,11 +15,11 @@ const colors = {
   screenBackground: '#F8F8F8', 
 };
 
-const EntryModeButton = ({ icon, label }) => {
+const EntryModeButton = ({ icon, label, onPress }) => {
   return (
     <TouchableOpacity 
       style={styles.optionButton}
-      onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
+      onPress={onPress}
     >
       <Ionicons name={icon} size={24} style={styles.optionIcon} />
       <Text style={styles.optionText}>{label}</Text>
@@ -32,22 +32,28 @@ export default function DocumentsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Upload Document</Text>
+          </View>
+          
           <Text style={styles.sectionTitle}>Choose Entry Mode</Text>
           <EntryModeButton
             icon="document-text-outline"
             label="File Picker"
+            onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
           />
           <EntryModeButton
             icon="camera"
             label="Camera"
+            onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
           />
           <EntryModeButton
             icon="cloud-upload-outline"
             label="Cloud Integrations"
+            onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
           />
           <View style={styles.dropzone}>
             <View style={styles.dropzoneIconCircle}>
-              {/* Use the color from the library */}
               <Ionicons name="cloud-upload" size={28} color={colors.primary} />
             </View>
             <Text style={styles.dropzoneTitle}>Tap to upload a file</Text>
@@ -74,6 +80,15 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: 20,
+  },
+  header: {
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 16,
