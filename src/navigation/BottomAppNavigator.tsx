@@ -6,6 +6,7 @@ import HomeScreen from '../screens/HomeScreen';
 import DocumentsScreen from '../screens/DocumentsScreen';
 import ScheduleScreen from '../screens/ScheduleScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import OnBoardingScreen from '../screens/OnBoardingScreen';
 
 export type RootStackParamList = {
   Login: undefined;
