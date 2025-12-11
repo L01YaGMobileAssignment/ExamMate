@@ -1,11 +1,12 @@
-import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
-
-import HomeScreen from "../screens/HomeScreen";
-import DocumentsScreen from "../screens/DocumentsScreen";
-import ScheduleScreen from "../screens/ScheduleScreen";
-import ProfileScreen from "../screens/ProfileScreen";
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import HomeScreen from '../screens/HomeScreen';
+import DocumentsScreen from '../screens/DocumentsScreen';
+import ScheduleScreen from '../screens/ScheduleScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import OnBoardingScreen from '../screens/OnBoardingScreen';
 
 const Tab = createBottomTabNavigator();
 
