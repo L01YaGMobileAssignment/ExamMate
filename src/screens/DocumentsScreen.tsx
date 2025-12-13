@@ -1,74 +1,131 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { norm_colors as colors } from '../template/color';
+import { DocumentType } from '../types/document';
 import { Ionicons } from '@expo/vector-icons';
-
-
-const colors = {
-  primary: '#007AFF',
-  primaryLight: '#dceaffff',
-  background: '#FFFFFF',
-  text: '#111827',
-  textSecondary: '#696969ff',
-  border: '#b6b6b6ff',
-  white: '#FFFFFF',
-  screenBackground: '#F8F8F8', 
-};
-
-const EntryModeButton = ({ icon, label, onPress }) => {
-  return (
-    <TouchableOpacity 
-      style={styles.optionButton}
-      onPress={onPress}
-    >
-      <Ionicons name={icon} size={24} style={styles.optionIcon} />
-      <Text style={styles.optionText}>{label}</Text>
-    </TouchableOpacity>
-  );
-};
+import { docIconName } from '../const/iconName';
+import InputText from '../components/input/inputText';
+import { getDocuments, getDocumentsByTitleKey } from '../services/docApiService';
+import { useNavigation } from '@react-navigation/native';
 
 export default function DocumentsScreen() {
+  const [listDocument, setListDocument] = useState<DocumentType[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(2);
+  const [pageSize, setPageSize] = useState(8);
+  const [documentDetail, setDocumentDetail] = useState<DocumentType>();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  const [onLoading, setOnLoading] = useState(false);
+  const [onRefresh, setOnRefresh] = useState(false);
+  const [onLoadMore, setOnLoadMore] = useState(false);
+
+  const navigation = useNavigation();
+
+  const handleSearch = async (title_key: string) => {
+    if (title_key.length > 0) {
+      const new_list = await getDocumentsByTitleKey(title_key);
+      setListDocument(new_list.data);
+    } else {
+      const new_list = await getDocuments(currentPage,pageSize);
+      setListDocument(new_list.data);
+    }
+  }
+
+  const handleRefresh = async () => {
+  if (onRefresh || onLoading || onLoadMore || !hasMounted) return;
+  setOnRefresh(true);
+  setCurrentPage(1);
+  const res = await getDocuments(1, pageSize);
+  setListDocument(res.data);
+  setOnRefresh(false);
+};
+
+
+  const handleLoadMore = async () => {
+    if (currentPage >= totalPage) return;
+    if (onLoading || onRefresh || onLoadMore) return;
+    setOnLoadMore(true);
+    const new_list = await getDocuments(currentPage+1,pageSize);
+    var temp = listDocument;
+    temp = temp.concat(new_list.data);
+    setCurrentPage(currentPage + 1);
+    setListDocument(temp);
+    setOnLoadMore(false);
+  }
+
+  const handleDetail = (document: DocumentType) => {
+    setDocumentDetail(document);
+    navigation.navigate('DocumentDetail', { document });
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setOnLoading(true);
+      const new_list = await getDocuments(currentPage,pageSize);
+      setListDocument(new_list.data);
+      setHasMounted(true);
+      setOnLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  const renderDocument = (document: DocumentType) => {
+    const icon:any = docIconName[document.fileType as keyof typeof docIconName];
+    return (
+        <View style={styles.docCard}>
+          <Ionicons name={icon} size={36} style={styles.optionIcon} />
+          <View style = {{flexDirection: "row", 
+                justifyContent: "space-between",
+                width: "90%",
+                alignItems: "center"}}>
+            <View>
+              <Text style={styles.docTitle}>{document.title}</Text>
+              <Text style={styles.docUploadTime}>{document.createdAt}</Text>
+            </View>
+            <TouchableOpacity onPress={() => handleDetail(document)}>
+              <Text style={styles.docButton}>Detail</Text>
+            </TouchableOpacity> 
+          </View>
+        </View>
+    )
+  }
+  if (onLoading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
   return (
     <SafeAreaView style={styles.safeArea}>
+      {listDocument?
       <View>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.headerTitle}>Upload Document</Text>
-          </View>
-          
-          <Text style={styles.sectionTitle}>Choose Entry Mode</Text>
-          <EntryModeButton
-            icon="document-text-outline"
-            label="File Picker"
-            onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
-          />
-          <EntryModeButton
-            icon="camera"
-            label="Camera"
-            onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
-          />
-          <EntryModeButton
-            icon="cloud-upload-outline"
-            label="Cloud Integrations"
-            onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
-          />
-          <View style={styles.dropzone}>
-            <View style={styles.dropzoneIconCircle}>
-              <Ionicons name="cloud-upload" size={28} color={colors.primary} />
-            </View>
-            <Text style={styles.dropzoneTitle}>Tap to upload a file</Text>
-            <Text style={styles.dropzoneSupport}>
-              Supported: PDF, DOCX, TXT. Max 20MB
-            </Text>
-            <TouchableOpacity 
-              style={styles.browseButton} 
-              onPress={() => Alert.alert('Not implemented', 'Functionality not implemented.')}
-            >
-              <Text style={styles.browseButtonText}>Browse Files</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+        <InputText
+          placeholder="Enter your document title"
+          iconLeft='search-outline'
+          style={styles.searchDoc}
+          onChangeText={(title_key:string)=>handleSearch(title_key)}
+        >
+        </InputText>
+        <FlatList
+          data={listDocument}
+          renderItem={({ item }) => renderDocument(item)}
+          keyExtractor={(item,index) => "doc-"+item.id.toString()+index.toString()}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.1}
+          refreshing={onRefresh}
+          onRefresh={handleRefresh}
+          contentContainerStyle={[styles.scrollContainer, { paddingBottom: 120 }]}
+          ListFooterComponent={
+          onLoadMore ? <ActivityIndicator size="small" /> : null
+          }
+        />
       </View>
+      :
+      <Text>No document</Text>
+    }
     </SafeAreaView>
   );
 }
@@ -80,83 +137,62 @@ const styles = StyleSheet.create({
     backgroundColor: colors.screenBackground, 
   },
   scrollContainer: {
-    padding: 20,
-  },
-  headerContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    padding: 15,
+    flexDirection: 'column',
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 15,
-    color: colors.text, 
-  },
-  optionButton: {
+  docCard: {
+    width: '100%',
+    height: 100,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background, 
-    padding: 16,
+    justifyContent: "flex-start",
+    marginVertical: 5,
+    marginHorizontal: 2,
+    padding: 10,
     borderRadius: 12,
-    marginBottom: 12,
-    elevation: 3,
+    borderColor: colors.border,
+    borderWidth: 1,
+    boxShadow: "2px 3px 1px #959595ff",
   },
   optionIcon: {
-    marginRight: 15,
-    color: colors.primary, 
+        marginRight: 15,
+        color: colors.primary, 
   },
-  optionText: {
+  docTitle: {
     fontSize: 16,
-    fontWeight: '500',
-    color: colors.text, 
-  },
-  dropzone: {
-    marginTop: 20,
-    backgroundColor: colors.background, 
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border, 
-    borderStyle: 'dashed',
-    padding: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dropzoneIconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primaryLight, 
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 15,
-  },
-  dropzoneTitle: {
-    fontSize: 18,
     fontWeight: '600',
-    color: colors.text, 
+    color: colors.text,
   },
-  dropzoneSupport: {
+  docUploadTime: {
     fontSize: 13,
-    color: colors.textSecondary, 
-    marginTop: 4,
-    marginBottom: 20,
+    color: colors.textSecondary,
+    marginTop: 2,
+    marginBottom: 10,
   },
-  browseButton: {
-    backgroundColor: colors.primary, 
+  docButton: {
+    backgroundColor: colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 35,
     borderRadius: 8,
+    color: colors.white,
   },
-  browseButtonText: {
-    color: colors.white, 
-    fontSize: 16,
-    fontWeight: '600',
+  searchDoc: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginTop: 20,
+    marginBottom: 10,
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
   },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
 });
