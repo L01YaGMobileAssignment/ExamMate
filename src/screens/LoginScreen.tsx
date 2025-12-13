@@ -23,7 +23,7 @@ export default function LoginScreen({ navigation }: Props) {
             value={email}
             onChangeText={(text:string) => setEmail(text)}
             secure={false}
-            iconLeft="email"
+            iconLeft="mail-outline"
             iconRight="eye-off"
             onRightPress={() => console.log('Right icon pressed')}
           />
@@ -33,7 +33,7 @@ export default function LoginScreen({ navigation }: Props) {
             value={password}
             onChangeText={(text:string) => setPassword(text)}
             secure={true}
-            iconLeft="lock"
+            iconLeft="lock-closed-outline"
             iconRight="eye-off"
             onRightPress={() => console.log('Right icon pressed')}
           />

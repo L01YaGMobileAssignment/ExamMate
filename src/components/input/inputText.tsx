@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 type InputTextProps = {
   label?: string;
   placeholder?: string;
@@ -33,6 +33,11 @@ const InputText = ({
       {label && <Text style={styles.label}>{label}</Text>}
 
       <View style={styles.inputWrapper}>
+        {iconLeft && (
+          <TouchableOpacity onPress={onRightPress} style={styles.leftIcon}>
+            <Ionicons name={iconLeft} size={20} color="#999" />
+          </TouchableOpacity>
+        )}
         <TextInput
           style={[styles.input, iconLeft ? { paddingLeft: 40 } : null]}
           placeholder={placeholder}
@@ -41,6 +46,12 @@ const InputText = ({
           secureTextEntry={hide}
           placeholderTextColor="#999"
         />
+        {iconRight && (
+            <TouchableOpacity onPress={onRightPress} style={styles.rightIcon}>
+              <Feather name={iconRight} size={20} color="#999" />
+            </TouchableOpacity>
+          )
+        }
         {secure && (
           <TouchableOpacity onPress={() => setHide(!hide)} style={styles.rightIcon}>
             <Feather name={hide ? "eye-off" : "eye"} size={20} color="#999" />
