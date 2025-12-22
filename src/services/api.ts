@@ -3,7 +3,7 @@ import axios from "axios";
 // Create axios instance
 export const api = axios.create({
   baseURL:
-    process.env.EXPO_PUBLIC_API_URL || "https://jsonplaceholder.typicode.com",
+    process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -43,3 +43,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export default api;
