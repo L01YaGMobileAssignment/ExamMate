@@ -15,13 +15,17 @@ import { DocumentType } from "../types/document";
 import { Ionicons } from "@expo/vector-icons";
 import { docIconName } from "../const/iconName";
 import { Latex } from '../components/Latex';
-import { getDocumentById, getDocumentSummary, removeDocument } from "../services/docApiService";
+import { getDocumentById, getDocumentSummary, removeDocument, viewFullDocument } from "../services/docApiService";
+import { Platform } from "react-native";
+import * as FileSystem from 'expo-file-system/legacy';
+import * as Sharing from 'expo-sharing';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { DocumentsStackParamList } from "../navigation/DocumentStackNavigator";
 import { generateQuiz } from "../services/quizzesService";
 
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useQuizStore } from "../store/quizStore";
+import { useDocStore } from "../store/docStore";
 
 type Props = NativeStackScreenProps<DocumentsStackParamList | RootStackParamList, "DocumentDetail">;
 export default function DocumentsDetailScreen({ route, navigation }: Props) {
@@ -72,16 +76,86 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
     }
   };
 
-  const handleRemove = async () => {
-    const res = await removeDocument(document.id);
-    if (res.status === 200) {
-      navigation.navigate("Documents");
-    }
+  const handleRemove = () => {
+    Alert.alert(
+      "Are you sure?",
+      "This will delete the document and all its quizzes. This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              const res = await removeDocument(document.id);
+              if (res.status === 200) {
+                useDocStore.getState().removeDoc(document.id);
+                navigation.navigate("Documents");
+              }
+            } catch (error) {
+              Alert.alert("Error", "Failed to delete document");
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
-  const handleViewFull = async () => {
-    // const res = await viewFullDocument(document.id);
-    // console.log(res);
+
+  const handleDownload = async () => {
+    setIsLoading(true);
+    try {
+      const res = await viewFullDocument(document.id);
+      if (Platform.OS === 'web') {
+        const contentType = res.headers['content-type'] || 'application/octet-stream';
+        const blob = new Blob([res.data], { type: contentType });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = window.document.createElement('a');
+        a.href = url;
+        a.download = document.filename || document.title || 'downloaded_file';
+
+        window.document.body.appendChild(a);
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+        window.document.body.removeChild(a);
+      } else {
+        const fileReader = new FileReader();
+        fileReader.onload = async () => {
+          try {
+            const base64Data = (fileReader.result as string).split(',')[1];
+            // @ts-ignore
+            const fileUri = `${FileSystem.cacheDirectory}${document.filename || document.title || 'downloaded_file'}`;
+
+            // @ts-ignore
+            await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+              // @ts-ignore
+              encoding: "base64",
+            });
+
+            if (await Sharing.isAvailableAsync()) {
+              await Sharing.shareAsync(fileUri);
+            } else {
+              Alert.alert("Error", "Sharing is not available on this device");
+            }
+          } catch (e) {
+            console.error("File save error:", e);
+            Alert.alert("Error", "Failed to save file");
+          }
+        };
+
+        fileReader.readAsDataURL(new Blob([res.data]));
+      }
+    } catch (error) {
+      console.error("Download failed:", error);
+      Alert.alert("Error", "Failed to download document.");
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -99,12 +173,12 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
         {document.summary ?
           <Latex textColor={colors.text} style={{ marginTop: 10 }}>
             {document.summary}
-          </Latex> : 
-          <View style={{flexDirection: "column",justifyContent:"center",alignItems:"center",height:500}}>
+          </Latex> :
+          <View style={{ flexDirection: "column", justifyContent: "center", alignItems: "center", height: 500 }}>
             <ActivityIndicator size="large" color="#007AFF" />
             <Text>Loading summary</Text>
           </View>
-          
+
         }
       </ScrollView>
       <View style={styles.footer}>
@@ -117,8 +191,8 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
           ) : <Text style={styles.primaryBtnText}>Generate Quiz</Text>}
         </TouchableOpacity>
         <View style={styles.footerBottom}>
-          <TouchableOpacity onPress={handleViewFull} style={styles.primaryBtn} disabled={isLoading}>
-            {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.primaryBtnText}>View Full</Text>}
+          <TouchableOpacity onPress={handleDownload} style={styles.primaryBtn} disabled={isLoading}>
+            {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.primaryBtnText}>Download</Text>}
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleRemove()} style={styles.errBtn} disabled={isLoading}>
             {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.primaryBtnText}>Remove</Text>}

@@ -20,6 +20,8 @@ import {
 } from "../services/docApiService";
 import { DocumentsStackParamList } from "../navigation/DocumentStackNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useDocStore } from "../store/docStore";
+import { normTime } from "../utils/normTime";
 
 type Props = NativeStackScreenProps<DocumentsStackParamList, "Documents">;
 export default function DocumentsScreen({ navigation }: Props) {
@@ -89,7 +91,7 @@ export default function DocumentsScreen({ navigation }: Props) {
       setOnLoading(false);
     };
     fetchData();
-  }, []);
+  }, [useDocStore((state) => state.docs.length)]);
 
   const renderDocument = (document: DocumentType) => {
     const icon: any =
@@ -103,7 +105,7 @@ export default function DocumentsScreen({ navigation }: Props) {
             <Text style={styles.docTitle} numberOfLines={1} ellipsizeMode="tail">
               {document.title || document.filename}
             </Text>
-            <Text style={styles.docUploadTime}>{document.createdAt}</Text>
+            <Text style={styles.docUploadTime}>{normTime(document.created_at)}</Text>
           </View>
           <TouchableOpacity style={styles.docButton} onPress={() => handleDetail(document)}>
             <Text style={styles.docButtonText}>Detail</Text>
@@ -131,15 +133,15 @@ export default function DocumentsScreen({ navigation }: Props) {
           <Text style={styles.headerRightText}>New</Text>
         </TouchableOpacity>
       </View>
-      {listDocument ? (
-        <View>
-          <InputText
+      <InputText
             placeholder="Enter your document title"
             iconLeft="search-outline"
             style={styles.searchDoc}
             borderRadius={30}
             onChangeText={(title_key: string) => handleSearch(title_key)}
           ></InputText>
+      {listDocument?.length > 0 ? (
+        <View>
           <FlatList
             data={listDocument}
             renderItem={({ item }) => renderDocument(item)}
@@ -160,7 +162,9 @@ export default function DocumentsScreen({ navigation }: Props) {
           />
         </View>
       ) : (
-        <Text>No document</Text>
+        <View style={styles.noDocumentContainer}>
+          <Text style={styles.noDocument}>No document</Text>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -192,6 +196,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 4,
     fontWeight: "600",
+  },
+  noDocumentContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noDocument: {
+    fontSize: 16,
+    color: colors.textSecondary,
   },
   title: {
     fontSize: 20,

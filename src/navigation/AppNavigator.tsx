@@ -9,6 +9,7 @@ import LandingScreen from "../screens/LandingScreen";
 import BottomAppNavigator from "./BottomAppNavigator";
 import DocumentsDetailScreen from "../screens/DocumentDetailScreen";
 import { DocumentType } from "../types/document";
+import { getIsFirstUse } from "../store/secureStore";
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -21,9 +22,23 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
+  const [initialRoute, setInitialRoute] = React.useState<keyof RootStackParamList | null>(null);
+
+  React.useEffect(() => {
+    const checkFirstUse = async () => {
+      const isFirst = await getIsFirstUse();
+      setInitialRoute(isFirst ? "Landing" : "Login");
+    };
+    checkFirstUse();
+  }, []);
+
+  if (initialRoute === null) {
+    return null;
+  }
+
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator initialRouteName="Landing">
+      <Stack.Navigator initialRouteName={initialRoute}>
         <Stack.Screen
           name="OnBoarding"
           component={OnBoardingScreen}

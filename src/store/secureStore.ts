@@ -4,6 +4,7 @@ import { UserType } from "../types/user";
 
 const TOKEN_KEY = "access_token";
 const USER_KEY = "user";
+const FIRST_USE_KEY = "is_first_use";
 
 const setItem = async (key: string, value: string) => {
   if (Platform.OS === "web") {
@@ -61,4 +62,13 @@ export const saveUser = async (user: UserType) => {
 export const clearAuth = async () => {
   await removeItem(USER_KEY);
   await removeItem(TOKEN_KEY);
+};
+
+export const getIsFirstUse = async (): Promise<boolean> => {
+  const isFirstUse = await getItem(FIRST_USE_KEY);
+  return isFirstUse === null;
+};
+
+export const saveIsFirstUse = async () => {
+  await setItem(FIRST_USE_KEY, "false");
 };

@@ -36,12 +36,13 @@ export const getDocumentById = async (id: string) => {
 export const getDocumentsByTitleKey = async (
   title: string
 ): Promise<AxiosResponse<DocumentType[]>> => {
-  var res = await axios.get<DocumentType[]>(apiEndpoints.getDocuments);
-  const filtered = res.data.filter(item => {
-      if (!item.title && !item.filename) return false;
-      return item?.title?.toLowerCase().includes(title.toLowerCase()) || item?.filename?.toLowerCase().includes(title.toLowerCase());
-  });
-  res.data = filtered;
+  // var res = await axios.get<DocumentType[]>(apiEndpoints.getDocuments);
+  // const filtered = res.data.filter(item => {
+  //     if (!item.title && !item.filename) return false;
+  //     return item?.title?.toLowerCase().includes(title.toLowerCase()) || item?.filename?.toLowerCase().includes(title.toLowerCase());
+  // });
+  // res.data = filtered;
+  const res = await axios.get<DocumentType[]>(apiEndpoints.searchDocumentByKey, { params: { q: title } });
   return res;
 };
 
@@ -96,11 +97,18 @@ export const removeDocument = async (quizId: string) => {
 };
 
 export const viewFullDocument = async (id: string) => {
-  const res = await axios.get(apiEndpoints.viewFullDocument.replace(":id", id));
+  const res = await axios.get(apiEndpoints.downloadDocument.replace(":id", id), {
+    responseType: "blob",
+  });
   return res;
 };
 
 export const deleteDocument = async (id: string) => {
   const res = await axios.delete(apiEndpoints.deleteDocument.replace(":id", id));
+  return res;
+};
+
+export const downloadDocument = async (id: string) => {
+  const res = await axios.get(apiEndpoints.downloadDocument.replace(":id", id));
   return res;
 };

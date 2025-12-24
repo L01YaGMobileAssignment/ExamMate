@@ -100,6 +100,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={userName}
                   onChangeText={setUserName}
                   secure={false}
+                  autoCapitalize="none"
                 // iconLeft="person-outline"
                 />
                 <InputText
@@ -108,6 +109,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={email}
                   onChangeText={setEmail}
                   secure={false}
+                  autoCapitalize="none"
                 // iconLeft="mail-outline"
                 />
                 <InputText
@@ -116,6 +118,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={password}
                   onChangeText={setPassword}
                   secure={!isPasswordVisible}
+                  autoCapitalize="none"
                   // iconLeft="lock-closed-outline"
                   iconRight={isPasswordVisible ? "eye-off" : "eye"}
                   onRightPress={togglePasswordVisibility}
@@ -126,6 +129,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secure={!isConfirmPasswordVisible}
+                  autoCapitalize="none"
                   // iconLeft="lock-closed-outline"
                   iconRight={isConfirmPasswordVisible ? "eye-off" : "eye"}
                   onRightPress={toggleConfirmPasswordVisibility}

@@ -83,6 +83,7 @@ export default function LoginScreen({ navigation }: Props) {
                   onChangeText={(text: string) => setEmail(text)}
                   secure={false}
                   iconLeft="mail-outline"
+                  autoCapitalize="none"
                   // iconRight="eye-off"
                   onRightPress={() => { }}
                 />
@@ -94,6 +95,7 @@ export default function LoginScreen({ navigation }: Props) {
                   secure={!showPassword}
                   iconLeft="lock-closed-outline"
                   iconRight={showPassword ? "eye-off" : "eye"}
+                  autoCapitalize="none"
                   onRightPress={() => setShowPassword(!showPassword)}
                 />
                 <TouchableOpacity

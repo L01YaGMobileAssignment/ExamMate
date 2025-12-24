@@ -17,9 +17,11 @@ export const useDocStore = create<DocState>(set => ({
   setDocs: docs => set({ docs }),
 
   addDoc: doc =>
-    set(state => ({
-      docs: [...state.docs, doc],
-    })),
+    set(state => {
+      const newDocs = [...state.docs, doc];
+      return {docs: newDocs};
+      }
+),
 
   removeDoc: docId =>
     set(state => ({

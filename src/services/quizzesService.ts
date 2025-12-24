@@ -35,11 +35,12 @@ export const generateQuiz = async (document_id: string): Promise<AxiosResponse<Q
 
 export const getQuizByTitle = async (title: string): Promise<AxiosResponse<QuizzesType[]>> => {
   // const res = await axios.get(apiEndpoints.getQuizByTitle.replace(":title", title));
-  var res = await axios.get<QuizzesType[]>(apiEndpoints.getAllQuizzes);
-  const filtered = res.data.filter(item => {
-      if (!item.quiz_id || !item.quiz_title) return false;
-      return item?.quiz_title?.toLowerCase().includes(title.toLowerCase());
-  });
-  res.data = filtered;
+  // var res = await axios.get<QuizzesType[]>(apiEndpoints.getAllQuizzes);
+  // const filtered = res.data.filter(item => {
+  //     if (!item.quiz_id || !item.quiz_title) return false;
+  //     return item?.quiz_title?.toLowerCase().includes(title.toLowerCase());
+  // });
+  // res.data = filtered;
+  const res = await axios.get<QuizzesType[]>(apiEndpoints.searchQuizzes,{params:{q:title}});
   return res;
 }

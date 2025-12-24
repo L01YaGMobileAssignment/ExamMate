@@ -17,6 +17,8 @@ import InputText from "../components/input/inputText";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { getQuizByTitle, getQuizzes } from "../services/quizzesService";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
+import { useQuizStore } from "../store/quizStore";
+import { normTime } from "../utils/normTime";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "ViewAllQuizzes">;
 export default function ViewAllQuizzesScreen({ navigation }: Props) {
@@ -86,7 +88,7 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
             setOnLoading(false);
         };
         fetchData();
-    }, []);
+    }, [useQuizStore((state) => state.quizzes.length)]);
 
     const renderQuiz = (quiz: QuizzesType) => {
         const icon: any = docIconName.pdf;
@@ -98,7 +100,7 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
                         <Text style={styles.docTitle} numberOfLines={1} ellipsizeMode="tail">
                             {quiz.quiz_title}
                         </Text>
-                        <Text style={styles.docUploadTime}>{quiz.createdAt}</Text>
+                        <Text style={styles.docUploadTime}>{normTime(quiz.created_at)}</Text>
                     </View>
                     <TouchableOpacity style={styles.docButton} onPress={() => handleDetail(quiz)}>
                         <Text style={styles.docButtonText}>Detail</Text>
@@ -129,15 +131,15 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
                     <Text style={styles.headerRightText}>New</Text>
                 </TouchableOpacity>
             </View>
-            {listQuizzes ? (
-                <View>
-                    <InputText
+            <InputText
                         placeholder="Enter your quiz title"
                         iconLeft="search-outline"
                         style={styles.searchDoc}
                         borderRadius={30}
                         onChangeText={(title_key: string) => handleSearch(title_key)}
-                    ></InputText>
+            ></InputText>
+            {listQuizzes ? (
+                <View>
                     <FlatList
                         data={listQuizzes}
                         renderItem={({ item }) => renderQuiz(item)}
@@ -158,7 +160,9 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
                     />
                 </View>
             ) : (
-                <Text>No Quizzes found</Text>
+            <View style={styles.noDocumentContainer}>
+                <Text style={styles.noDocument}>No Quizzes found</Text>
+             </View>
             )}
         </SafeAreaView>
     );
@@ -274,5 +278,14 @@ const styles = StyleSheet.create({
     docTextContainer: {
         flex: 1,
         paddingRight: 10,
-    }
+    },
+    noDocumentContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noDocument: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
 });

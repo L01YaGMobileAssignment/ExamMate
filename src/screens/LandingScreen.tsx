@@ -18,6 +18,7 @@ import {
 } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
+import { saveIsFirstUse } from "../store/secureStore";
 
 const { width } = Dimensions.get("window");
 const COLORS = {
@@ -126,7 +127,10 @@ export default function LandingScreen({ navigation }: Props) {
 
           <TouchableOpacity
             style={styles.primaryBtn}
-            onPress={() => navigation.navigate("Login")}
+            onPress={async () => {
+              await saveIsFirstUse();
+              navigation.navigate("Login");
+            }}
             activeOpacity={0.8}
           >
             <Text style={styles.primaryBtnText}>Tham gia trải nghiệm ngay</Text>
@@ -270,7 +274,10 @@ export default function LandingScreen({ navigation }: Props) {
       <View style={styles.stickyBottomBar}>
         <TouchableOpacity
           style={styles.stickyBtn}
-          onPress={() => navigation.navigate("Login")}
+          onPress={async () => {
+            await saveIsFirstUse();
+            navigation.navigate("Login");
+          }}
         >
           <Text style={styles.stickyBtnText}>Bắt đầu học ngay</Text>
         </TouchableOpacity>

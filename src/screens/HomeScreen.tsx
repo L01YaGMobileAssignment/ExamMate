@@ -17,6 +17,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { getDocuments } from "../services/docApiService";
 import { DocumentType } from "../types/document";
+import { useDocStore } from "../store/docStore";
 
 const colors = {
   primary: "#007AFF",
@@ -81,7 +82,7 @@ export default function HomeScreen({ navigation }: Props) {
       }
     };
     fetchData();
-  }, []);
+  }, [useDocStore((state) => state.docs.length)]);
 
   const handleMyQuizzes = () => {
     navigation.navigate("ViewAllQuizzes");

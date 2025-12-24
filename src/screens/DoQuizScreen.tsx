@@ -7,6 +7,7 @@ import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { getQuizById } from "../services/quizzesService";
 import { QuestionType, QuizzesType } from "../types/document";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuizStore } from "../store/quizStore";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "DoQuiz">;
 export default function QuizOverviewScreen({ route, navigation }: Props) {
@@ -29,6 +30,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
             if (res.status === 200) {
                 const data = res.data;
                 setQuiz_(data);
+                useQuizStore.getState().updateQuiz(data.quiz_id, data.questions);
             }
             setIsLoading(false);
         };
