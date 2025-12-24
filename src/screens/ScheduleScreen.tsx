@@ -1,6 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
-import { Ionicons , MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Calendar } from "react-native-calendars";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -9,7 +15,6 @@ export default function ScheduleScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-
       {/* Header */}
       <View style={styles.header}>
         <Ionicons name="arrow-back" size={24} color="black" />
@@ -30,12 +35,11 @@ export default function ScheduleScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-
         {/* REAL CALENDAR */}
         <View style={styles.calendarBox}>
           <Calendar
             initialDate={"2077-10-05"}
-            onDayPress={(day) => setSelected(day.dateString)}
+            onDayPress={day => setSelected(day.dateString)}
             markedDates={{
               [selected]: {
                 selected: true,
@@ -63,10 +67,21 @@ export default function ScheduleScreen() {
         {/* Today Section */}
         <Text style={styles.todayTitle}>Today</Text>
 
-        <TaskCard title="Math Review" time="9:00 AM - 10:00 AM" type={"book-outline"} />
-        <TaskCard title="History Quiz" time="11:00 AM - 12:00 PM" type={"test-tube-empty"} />
-        <TaskCard title="Science Practice" time="2:00 PM - 3:00 PM" type={"pencil-outline"} />
-
+        <TaskCard
+          title="Math Review"
+          time="9:00 AM - 10:00 AM"
+          type={"book-outline"}
+        />
+        <TaskCard
+          title="History Quiz"
+          time="11:00 AM - 12:00 PM"
+          type={"test-tube-empty"}
+        />
+        <TaskCard
+          title="Science Practice"
+          time="2:00 PM - 3:00 PM"
+          type={"pencil-outline"}
+        />
       </ScrollView>
 
       {/* Floating Add Button */}
@@ -78,8 +93,8 @@ export default function ScheduleScreen() {
 }
 
 /* Task Component */
-function TaskCard({ title, time , type}) {
-  if (type == "book-outline"){
+function TaskCard({ title, time, type }) {
+  if (type == "book-outline") {
     return (
       <View style={styles.taskCard}>
         <Ionicons name={type} size={24} color="#4A90E2" />
@@ -89,7 +104,7 @@ function TaskCard({ title, time , type}) {
         </View>
       </View>
     );
-  } else if (type == "test-tube-empty" || type == "pencil-outline"){
+  } else if (type == "test-tube-empty" || type == "pencil-outline") {
     return (
       <View style={styles.taskCard}>
         <MaterialCommunityIcons name={type} size={24} color="#4A90E2" />
@@ -127,7 +142,7 @@ const styles = StyleSheet.create({
   },
 
   calendarBox: {
-    height : 350,
+    height: 350,
     marginTop: 20,
     marginHorizontal: 16,
     borderRadius: 12,
@@ -166,4 +181,3 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-

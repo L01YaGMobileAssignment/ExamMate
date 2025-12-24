@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { Feather, Ionicons } from "@expo/vector-icons";
 type InputTextProps = {
   label?: string;
   placeholder?: string;
@@ -12,6 +18,7 @@ type InputTextProps = {
   onRightPress?: () => void;
   error?: string;
   style?: any;
+  borderRadius?: number;
 };
 
 const InputText = ({
@@ -24,15 +31,16 @@ const InputText = ({
   iconRight,
   onRightPress,
   error,
-  style
-}:InputTextProps) => {
+  style,
+  borderRadius,
+}: InputTextProps) => {
   const [hide, setHide] = useState(secure);
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[style,styles.container]}>
       {label && <Text style={styles.label}>{label}</Text>}
 
-      <View style={styles.inputWrapper}>
+      <View style={[styles.inputWrapper,{borderRadius: borderRadius}]}>
         {iconLeft && (
           <TouchableOpacity onPress={onRightPress} style={styles.leftIcon}>
             <Ionicons name={iconLeft} size={20} color="#999" />
@@ -47,13 +55,15 @@ const InputText = ({
           placeholderTextColor="#999"
         />
         {iconRight && (
-            <TouchableOpacity onPress={onRightPress} style={styles.rightIcon}>
-              <Feather name={iconRight} size={20} color="#999" />
-            </TouchableOpacity>
-          )
-        }
+          <TouchableOpacity onPress={onRightPress} style={styles.rightIcon}>
+            <Feather name={iconRight} size={20} color="#999" />
+          </TouchableOpacity>
+        )}
         {secure && (
-          <TouchableOpacity onPress={() => setHide(!hide)} style={styles.rightIcon}>
+          <TouchableOpacity
+            onPress={() => setHide(!hide)}
+            style={styles.rightIcon}
+          >
             <Feather name={hide ? "eye-off" : "eye"} size={20} color="#999" />
           </TouchableOpacity>
         )}
@@ -61,55 +71,57 @@ const InputText = ({
       {error && <Text style={styles.error}>{error}</Text>}
     </View>
   );
+  
 };
+
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
     marginBottom: 18,
   },
 
   label: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 6,
   },
 
   inputWrapper: {
-    width: '100%',
+    width: "100%",
     height: 50,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#ccc',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    borderColor: "#ccc",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
 
   input: {
     flex: 1,
-    height: '100%',
+    height: "100%",
     paddingHorizontal: 12,
     fontSize: 16,
   },
 
   leftIcon: {
-    position: 'absolute',
+    position: "absolute",
     left: 12,
     zIndex: 10,
   },
 
   rightIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: 12,
     zIndex: 10,
   },
 
   error: {
-    color: 'red',
+    color: "red",
     marginTop: 5,
     fontSize: 13,
   },
+  
 });
-
 export default InputText;
