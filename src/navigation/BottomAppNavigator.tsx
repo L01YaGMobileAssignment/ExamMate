@@ -1,23 +1,22 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import HomeScreen from '../screens/HomeScreen';
-import DocumentsScreen from '../screens/DocumentsScreen';
-import ScheduleScreen from '../screens/ScheduleScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import OnBoardingScreen from '../screens/OnBoardingScreen';
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+import HomeStackNavigator from "./HomeNavigator";
+import ScheduleScreen from "../screens/ScheduleScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import DocumentsStackNavigator from "./DocumentStackNavigator";
 
 const Tab = createBottomTabNavigator();
 
 export default function BottomAppNavigator() {
   return (
-    <Tab.Navigator initialRouteName="Home">
+    <Tab.Navigator initialRouteName="HomeTab">
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+        name="HomeTab"
+        component={HomeStackNavigator}
         options={{
           headerShown: false,
+          title: "Home",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
@@ -25,12 +24,13 @@ export default function BottomAppNavigator() {
       />
 
       <Tab.Screen
-        name="Documents"
-        component={DocumentsScreen}
+        name="DocumentsTab"
+        component={DocumentsStackNavigator}
         options={{
           headerShown: false,
+          title: "Documents",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="document" size={size} color={color} />
+            <Ionicons name="document-text-outline" size={size} color={color} />
           ),
         }}
       />
@@ -41,7 +41,7 @@ export default function BottomAppNavigator() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
@@ -52,7 +52,7 @@ export default function BottomAppNavigator() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />

@@ -1,46 +1,54 @@
 import axios from "axios";
-
-// Create axios instance
+import { clearAuth, getToken } from "../store/secureStore";
+import { resetAndNavigate } from "../navigation/navigationRef";
 export const api = axios.create({
-  baseURL:
-    process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001",
-  timeout: 10000,
+  baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001",
+  timeout: 180000,
   headers: {
+    "ngrok-skip-browser-warning": "true",
     "Content-Type": "application/json",
   },
 });
 
-// Request interceptor
 api.interceptors.request.use(
   config => {
-    // Add auth token if available
-    const token = null; // TODO: Get from secure storage
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
+    const load = async () => {
+      const token = await getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      if (config.data instanceof FormData) {
+        if (config.headers && typeof (config.headers as any).delete === 'function') {
+          (config.headers as any).delete("Content-Type");
+        } else if (config.headers) {
+          delete config.headers["Content-Type"];
+        }
+      }
+      return config;
+    };
+    return load();
   },
   error => {
     return Promise.reject(error);
   }
 );
 
-// Response interceptor
 api.interceptors.response.use(
   response => response,
   error => {
-    // Handle common errors
-    if (error.response?.status === 401) {
-      // TODO: Handle unauthorized - logout user
-      console.log("Unauthorized - redirect to login");
-    }
-
-    if (error.response?.status >= 500) {
-      // TODO: Show error toast
-      console.log("Server error");
-    }
-
-    return Promise.reject(error);
+    const handleError = async () => {
+      if (error.response?.status === 401) {
+        await clearAuth();
+        resetAndNavigate("Login");
+      }
+      if (error.response?.status === 403) {
+      }
+      if (error.response?.status >= 500) {
+      }
+      return Promise.reject(error);
+    };
+    return handleError();
   }
 );
 

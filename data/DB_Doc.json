@@ -1,5 +1,5 @@
 {
-    "documents": [
+  "documents": [
     {
       "id": "1",
       "title": "Math Notes",
@@ -78,7 +78,7 @@
       "Summarycontent": "Summary of Science Report",
       "content": "Science Report Content",
       "fileType": "svg",
-      "createdAt": "2022-01-03",  
+      "createdAt": "2022-01-03",
       "updatedAt": "2022-01-03"
     },
     {
@@ -135,5 +135,5 @@
       "createdAt": "2022-01-03",
       "updatedAt": "2022-01-03"
     }
-]
+  ]
 }
