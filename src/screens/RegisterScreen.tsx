@@ -53,7 +53,6 @@ export default function RegisterScreen({ navigation }: Props) {
         password: password,
         email: email,
       });
-
       if (response.status === 200 || response.status === 201) {
         Alert.alert("Success", "Account created successfully. Please login.", [
           { text: "OK", onPress: () => navigation.navigate("Login") }
@@ -63,7 +62,6 @@ export default function RegisterScreen({ navigation }: Props) {
       }
 
     } catch (error: any) {
-      console.log(error);
       const msg = error.response?.data?.detail || "Registration failed. Please try again.";
       Alert.alert("Error", msg);
     } finally {

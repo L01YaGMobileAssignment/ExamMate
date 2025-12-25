@@ -58,7 +58,7 @@ export default function UploadDocumentScreen({ navigation }: Props) {
         });
       }
     } catch (err) {
-      console.log("Unknown Error: ", err);
+      // console.log("Unknown Error: ", err);
     }
   };
 
@@ -89,7 +89,7 @@ export default function UploadDocumentScreen({ navigation }: Props) {
         });
       }
     } catch (err) {
-      console.log("Unknown Error: ", err);
+      // console.log("Unknown Error: ", err);
     }
   };
 
@@ -108,7 +108,6 @@ export default function UploadDocumentScreen({ navigation }: Props) {
           const blob = await res.blob();
           formData.append("file", blob, selectedFile.name);
         } catch (e) {
-          console.error("Error fetching blob", e);
           Alert.alert("Error", "Failed to process file for upload.");
           setUploading(false);
           return;
@@ -135,7 +134,6 @@ export default function UploadDocumentScreen({ navigation }: Props) {
         Alert.alert("Error", "Failed to upload document.");
       }
     } catch (error) {
-      console.error(error);
       Alert.alert("Error", "An error occurred during upload.");
     } finally {
       setUploading(false);

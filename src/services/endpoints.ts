@@ -19,4 +19,11 @@ export const apiEndpoints = {
   deleteDocument: "/documents/:id", // xóa một document
   viewFullDocument: "/documents/:id/view-full", // xem một document đầy đủ
   downloadDocument: "/documents/:id/download", // download một document
+
+
+  getAllSchedules: "/schedule", // lấy tất cả các schedules
+  createSchedule: "/schedule", // tạo một schedule mới
+  getScheduleById: "/schedule/:id", // lấy một schedule theo id của schedule
+  updateScheduleById: "/schedule/:id", // cập nhật một schedule theo id của schedule
+  deleteScheduleById: "/schedule/:id", // xóa một schedule theo id của schedule
 };

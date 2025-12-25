@@ -48,7 +48,7 @@ export const getUser = async (): Promise<UserType | null> => {
     try {
       return JSON.parse(userStr);
     } catch (e) {
-      console.error("Error parsing user data", e);
+      // console.error("Error parsing user data", e);
       return null;
     }
   }

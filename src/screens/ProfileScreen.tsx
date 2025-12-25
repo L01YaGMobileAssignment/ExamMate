@@ -16,6 +16,7 @@ import { resetAndNavigate } from "../navigation/navigationRef";
 import { norm_colors as colors } from "../template/color";
 import { useQuizStore } from "../store/quizStore";
 import { useDocStore } from "../store/docStore";
+import { useScheduleStore } from "../store/schedule";
 
 interface ProfileMenuItemProps {
   icon: any;
@@ -65,6 +66,7 @@ export default function ProfileScreen() {
           await clearAuth();
           useQuizStore.getState().clearQuizzes();
           useDocStore.getState().clearDocs();
+          useScheduleStore.getState().clearSchedules();
           resetAndNavigate("Login");
           
         },

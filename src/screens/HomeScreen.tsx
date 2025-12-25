@@ -18,19 +18,11 @@ import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { getDocuments } from "../services/docApiService";
 import { DocumentType } from "../types/document";
 import { useDocStore } from "../store/docStore";
+import { ScheduleType } from "../types/schedule";
+import { getAllSchedules } from "../services/scheduleService";
+import { useScheduleStore } from "../store/schedule";
+import { norm_colors as colors } from "../template/color";
 
-const colors = {
-  primary: "#007AFF",
-  primaryLight: "#dceaffff",
-  background: "#FFFFFF",
-  text: "#111827",
-  textSecondary: "#696969ff",
-  border: "#b6b6b6ff",
-  white: "#FFFFFF",
-  screenBackground: "#F8F8F8",
-  docBgTan: "#f7e8d3",
-  docBgPink: "#fbe5e1",
-};
 
 const RecentDocumentCard = ({ title, iconName, bgColor, onPress }: any) => {
   return (
@@ -58,11 +50,26 @@ const UpcomingSessionItem = ({ icon, title, subject, time, onPress }: any) => {
     </TouchableOpacity>
   );
 };
+function TaskCard({ title, time, type }: { title: string, time: string, type: any }) {
+  const iconName = type || "book-outline";
+  const iconColor = "#4A90E2";
+
+  return (
+    <View style={styles.taskCard}>
+      <Ionicons name={iconName} size={24} color={iconColor} />
+      <View style={{ marginLeft: 8 }}>
+        <Text style={styles.taskTitle}>{title}</Text>
+        <Text style={styles.taskTime}>{time}</Text>
+      </View>
+    </View>
+  );
+}
 
 type Props = NativeStackScreenProps<HomeStackParamList, "Home">;
 export default function HomeScreen({ navigation }: Props) {
   const [user, setUser] = useState<UserType>();
   const [documents, setDocuments] = useState<DocumentType[]>([]);
+  const [schedules, setSchedules] = useState<ScheduleType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
@@ -76,7 +83,7 @@ export default function HomeScreen({ navigation }: Props) {
           setDocuments(documents.data.filter((item, index) => index < 5));
         }
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -84,6 +91,17 @@ export default function HomeScreen({ navigation }: Props) {
     fetchData();
   }, [useDocStore((state) => state.docs.length)]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      const schedules = await getAllSchedules();
+      if (schedules.status === 200) {
+        setSchedules(schedules.data);
+      }
+      setIsLoading(false);
+    };
+    fetchData();
+  }, [useScheduleStore((state) => state.schedules.length)]);
   const handleMyQuizzes = () => {
     navigation.navigate("ViewAllQuizzes");
   }
@@ -109,6 +127,17 @@ export default function HomeScreen({ navigation }: Props) {
       </View>
     );
   }
+
+  const upcomingSchedules = schedules
+    .filter(item => {
+      const itemDate = new Date(item.start_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const threeDaysLater = new Date(today);
+      threeDaysLater.setDate(today.getDate() + 3);
+      return itemDate >= today && itemDate < threeDaysLater;
+    })
+    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -148,7 +177,7 @@ export default function HomeScreen({ navigation }: Props) {
           </TouchableOpacity>
         </View>
         <Text style={styles.sectionTitle}>Recent Documents</Text>
-        <ScrollView
+        {documents.length>0?(<ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           style={styles.recentDocsScroller}
@@ -156,26 +185,42 @@ export default function HomeScreen({ navigation }: Props) {
           {documents.map((item, index) => (
             renderDocument(item)
           ))}
-        </ScrollView>
+        </ScrollView>):(
+          <Text style={{ color: colors.textSecondary, textAlign: "center" }}>
+            No recent documents found.
+          </Text>
+        )}
         <Text style={styles.sectionTitle}>Upcoming Sessions</Text>
-        <UpcomingSessionItem
-          icon="book-outline"
-          title="Chapter 3 Review"
-          subject="Math"
-          time="Tomorrow, 2 PM"
-          onPress={() =>
-            Alert.alert("Not implemented", "Functionality not implemented.")
-          }
-        />
-        <UpcomingSessionItem
-          icon="book-outline"
-          title="Essay Outline"
-          subject="History"
-          time="Next Week, 10 AM"
-          onPress={() =>
-            Alert.alert("Not implemented", "Functionality not implemented.")
-          }
-        />
+        {upcomingSchedules.length === 0 ? (
+          <Text style={{ color: colors.textSecondary, textAlign: "center" }}>
+            No upcoming sessions in the next 3 days.
+          </Text>
+        ) : (upcomingSchedules
+          .map((item, index, array) => {
+            const startDate = new Date(item.start_date);
+            const endDate = new Date(item.end_date);
+            const dateStr = startDate.toISOString().split('T')[0];
+
+            const prevItem = index > 0 ? array[index - 1] : null;
+            const prevDateStr = prevItem ? new Date(prevItem.start_date).toISOString().split('T')[0] : null;
+            const showDateHeader = dateStr !== prevDateStr;
+
+            const timeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')} - ${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+
+            return (
+              <View style={{ marginBottom: 8 }} key={index}>
+                {showDateHeader && (
+                  <Text style={{ marginLeft: 8, fontSize: 13, fontWeight: 'bold', color: colors.textSecondary, marginTop: 8, marginBottom: 2 }}>{dateStr}</Text>
+                )}
+                <TaskCard
+                  title={item.title}
+                  time={timeStr}
+                  type={"book-outline"}
+                />
+              </View>
+            )
+          })
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -330,4 +375,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.screenBackground,
   },
+  taskCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    marginHorizontal: 8,
+    backgroundColor: "white",
+    borderRadius: 12,
+    marginTop: 12,
+  },
+  taskTitle: { fontSize: 15, fontWeight: "600" },
+  taskTime: { fontSize: 13, color: "#666" },
+
 });
