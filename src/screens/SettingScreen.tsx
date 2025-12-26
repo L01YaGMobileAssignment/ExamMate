@@ -18,22 +18,42 @@ import { useSettingStore } from "../store/settingStore";
 export default function SettingScreen() {
     const navigation = useNavigation();
     const numberOfQuestions = useSettingStore(state => state.numberOfQuestions);
+    const notifyTime = useSettingStore(state => state.notifyTime);
     const setNumberOfQuestions = useSettingStore(state => state.setNumberOfQuestions);
+    const setNotifyTime = useSettingStore(state => state.setNotifyTime);
 
     const [tempNum, setTempNum] = useState(numberOfQuestions.toString());
+    const [tempNotifyTime, setTempNotifyTime] = useState(notifyTime.toString());
 
     useEffect(() => {
         setTempNum(numberOfQuestions.toString());
-    }, [numberOfQuestions]);
+        setTempNotifyTime(notifyTime.toString());
+    }, [numberOfQuestions, notifyTime]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const num = parseInt(tempNum);
-        if (!isNaN(num) && num > 0) {
-            setNumberOfQuestions(num);
+        const time = parseInt(tempNotifyTime);
+
+        let isValid = true;
+        let errorMessage = "";
+
+        if (isNaN(num) || num <= 0) {
+            isValid = false;
+            errorMessage = "Please enter a valid number of questions";
+        } else if (isNaN(time) || time <= 0) {
+            isValid = false;
+            errorMessage = "Please enter a valid notification time";
+        }
+
+        if (isValid) {
+            await Promise.all([
+                setNumberOfQuestions(num),
+                setNotifyTime(time)
+            ]);
             Alert.alert("Success", "Settings saved successfully");
             navigation.goBack();
         } else {
-            Alert.alert("Invalid input", "Please enter a valid number of questions");
+            Alert.alert("Invalid input", errorMessage);
         }
     };
 
@@ -60,6 +80,21 @@ export default function SettingScreen() {
                             onChangeText={setTempNum}
                             keyboardType="numeric"
                             placeholder="e.g. 20"
+                            placeholderTextColor={colors.textSecondary}
+                        />
+                    </View>
+
+                    <View style={styles.settingItem}>
+                        <Text style={styles.label}>Notify Before</Text>
+                        <Text style={styles.description}>
+                            Set how many minutes before an event to receive a notification.
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            value={tempNotifyTime}
+                            onChangeText={setTempNotifyTime}
+                            keyboardType="numeric"
+                            placeholder="e.g. 60"
                             placeholderTextColor={colors.textSecondary}
                         />
                     </View>

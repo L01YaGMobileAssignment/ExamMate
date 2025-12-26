@@ -106,7 +106,6 @@ export default function ScheduleScreen({ navigation }: any) {
             try {
               const res = await deleteScheduleById(editingScheduleId);
               if (res.status === 200) {
-                // Update local state or refetch
                 fetchData();
                 Alert.alert("Success", "Schedule deleted successfully");
                 setModalVisible(false);
@@ -142,7 +141,6 @@ export default function ScheduleScreen({ navigation }: any) {
 
     setIsSaving(true);
     try {
-      // Construct date in local time
       const [year, month, day] = modalDate.split('-').map(Number);
 
       const startDateTime = new Date(year, month - 1, day, startHour, startMinute).getTime();
@@ -161,6 +159,7 @@ export default function ScheduleScreen({ navigation }: any) {
         res = await updateScheduleById(editingScheduleId, scheduleData);
         if (res.status === 200) {
           fetchData();
+          useScheduleStore.getState().updateSchedule(editingScheduleId, res.data);
           await scheduleEventNotification(title, startDateTime);
           Alert.alert("Success", "Schedule updated successfully");
         }

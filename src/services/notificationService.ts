@@ -12,7 +12,6 @@ Notifications.setNotificationHandler({
 });
 
 export async function registerForPushNotificationsAsync() {
-    let token;
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
 
@@ -23,18 +22,22 @@ export async function registerForPushNotificationsAsync() {
 
     if (finalStatus !== 'granted') {
         console.log('Failed to get push token for push notification!');
-        return;
+        return false;
     }
+    return true;
 }
+
+import { useSettingStore } from '../store/settingStore';
 
 export async function scheduleEventNotification(title: string, startTimestamp: number) {
     try {
         const now = Date.now();
         const diff = startTimestamp - now;
-        const oneHourMs = process.env.EXPO_PUBLIC_NOTIFY_TIME * 60 * 1000;
+        const notifyTime = useSettingStore.getState().notifyTime;
+        const notifyBeforeMs = notifyTime * 60 * 1000;
 
         if (diff <= 0) return;
-        if (diff < oneHourMs) {
+        if (diff < notifyBeforeMs) {
             await Notifications.scheduleNotificationAsync({
                 content: {
                     title: "Upcoming Schedule",
@@ -47,11 +50,11 @@ export async function scheduleEventNotification(title: string, startTimestamp: n
                 },
             });
         } else {
-            const triggerDate = new Date(startTimestamp - oneHourMs);
+            const triggerDate = new Date(startTimestamp - notifyBeforeMs);
             await Notifications.scheduleNotificationAsync({
                 content: {
                     title: "Upcoming Schedule",
-                    body: `"${title}" starts in 1 hour.`,
+                    body: `"${title}" starts in ${notifyTime} ${notifyTime === 1 ? 'minute' : 'minutes'}.`,
                 },
                 trigger: {
                     date: triggerDate,

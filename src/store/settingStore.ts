@@ -3,8 +3,10 @@ import * as SecureStore from 'expo-secure-store';
 
 interface SettingState {
     numberOfQuestions: number;
+    notifyTime: number;
     isLoading: boolean;
     setNumberOfQuestions: (num: number) => Promise<void>;
+    setNotifyTime: (minutes: number) => Promise<void>;
     loadSettings: () => Promise<void>;
 }
 
@@ -12,6 +14,7 @@ const SETTINGS_KEY = 'user_settings';
 
 export const useSettingStore = create<SettingState>((set, get) => ({
     numberOfQuestions: 20,
+    notifyTime: 60,
     isLoading: true,
     setNumberOfQuestions: async (num: number) => {
         try {
@@ -19,6 +22,16 @@ export const useSettingStore = create<SettingState>((set, get) => ({
             const currentSettings = await SecureStore.getItemAsync(SETTINGS_KEY);
             const settings = currentSettings ? JSON.parse(currentSettings) : {};
             await SecureStore.setItemAsync(SETTINGS_KEY, JSON.stringify({ ...settings, numberOfQuestions: num }));
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        }
+    },
+    setNotifyTime: async (minutes: number) => {
+        try {
+            set({ notifyTime: minutes });
+            const currentSettings = await SecureStore.getItemAsync(SETTINGS_KEY);
+            const settings = currentSettings ? JSON.parse(currentSettings) : {};
+            await SecureStore.setItemAsync(SETTINGS_KEY, JSON.stringify({ ...settings, notifyTime: minutes }));
         } catch (error) {
             console.error('Failed to save settings:', error);
         }
@@ -31,6 +44,9 @@ export const useSettingStore = create<SettingState>((set, get) => ({
                 const settings = JSON.parse(storedSettings);
                 if (settings.numberOfQuestions) {
                     set({ numberOfQuestions: settings.numberOfQuestions });
+                }
+                if (settings.notifyTime) {
+                    set({ notifyTime: settings.notifyTime });
                 }
             }
         } catch (error) {

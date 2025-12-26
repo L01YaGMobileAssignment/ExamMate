@@ -2,10 +2,8 @@ import axios from "./api";
 import { apiEndpoints } from "./endpoints";
 import { AxiosResponse } from "axios";
 import { ScheduleType } from "../types/schedule";
-import { useScheduleStore } from "../store/schedule";
 
 export const getAllSchedules = async (): Promise<AxiosResponse<ScheduleType[]>> => {
-  // const schedules = useScheduleStore.getState().schedules;
   const res = await axios.get<ScheduleType[]>(apiEndpoints.getAllSchedules);
   return res;
 };

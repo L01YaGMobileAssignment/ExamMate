@@ -89,7 +89,7 @@ export default function HomeScreen({ navigation }: Props) {
       }
     };
     fetchData();
-  }, [useDocStore((state) => state.docs.length)]);
+  }, [useDocStore((state) => state.docs)]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,7 +101,7 @@ export default function HomeScreen({ navigation }: Props) {
       setIsLoading(false);
     };
     fetchData();
-  }, [useScheduleStore((state) => state.schedules.length)]);
+  }, [useScheduleStore((state) => state.schedules)]);
   const handleMyQuizzes = () => {
     navigation.navigate("ViewAllQuizzes");
   }
