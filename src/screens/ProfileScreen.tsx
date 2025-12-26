@@ -18,6 +18,7 @@ import { norm_colors as colors } from "../template/color";
 import { useQuizStore } from "../store/quizStore";
 import { useDocStore } from "../store/docStore";
 import { useScheduleStore } from "../store/schedule";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 interface ProfileMenuItemProps {
   icon: any;
@@ -56,14 +57,15 @@ const ProfileMenuItem = ({
 };
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
   const user = useAuthStore(state => state.user);
   const navigation = useNavigation<any>();
 
   const handleLogout = () => {
-    Alert.alert("Log Out", "Are you sure you want to log out?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t.logout, t.confirm_logout, [
+      { text: t.cancel, style: "cancel" },
       {
-        text: "Log Out",
+        text: t.logout,
         style: "destructive",
         onPress: async () => {
           await clearAuth();
@@ -80,57 +82,57 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.headerContainer}>
-          <Text style={styles.headerTitle}>Profile</Text>
+          <Text style={styles.headerTitle}>{t.profile_title}</Text>
         </View>
         <View style={styles.profileInfoContainer}>
           <Image
             source={{ uri: "https://picsum.photos/100/100" }}
             style={styles.profileAvatar}
           />
-          <Text style={styles.profileName}>{user?.username || "Guest"}</Text>
-          <Text style={styles.profileEmail}>{user?.email || "No email"}</Text>
+          <Text style={styles.profileName}>{user?.username || t.guest}</Text>
+          <Text style={styles.profileEmail}>{user?.email || t.no_email}</Text>
         </View>
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>{t.personal_info}</Text>
         <View style={styles.menuGroup}>
           <ProfileMenuItem
             icon="person-circle-outline"
-            title="Edit Profile Information"
+            title={t.edit_profile}
             onPress={() =>
-              Alert.alert("Not implemented", "Functionality not implemented.")
+              Alert.alert(t.not_implemented, t.func_not_implemented)
             }
           />
           <ProfileMenuItem
             icon="time-outline"
-            title="History"
+            title={t.history}
             onPress={() =>
-              Alert.alert("Not implemented", "Functionality not implemented.")
+              Alert.alert(t.not_implemented, t.func_not_implemented)
             }
           />
           <ProfileMenuItem
             icon="settings-outline"
-            title="Settings"
+            title={t.settings}
             onPress={() => {
               navigation.navigate("Setting");
             }}
           />
         </View>
 
-        <Text style={styles.sectionTitle}>Support</Text>
+        <Text style={styles.sectionTitle}>{t.support}</Text>
         <View style={styles.menuGroup}>
           <ProfileMenuItem
             icon="help-circle-outline"
-            title="Help & Support"
+            title={t.help_support}
             onPress={() =>
-              Alert.alert("Not implemented", "Functionality not implemented.")
+              Alert.alert(t.not_implemented, t.func_not_implemented)
             }
           />
         </View>
 
-        <Text style={styles.sectionTitle}>Actions</Text>
+        <Text style={styles.sectionTitle}>{t.actions}</Text>
         <View style={styles.menuGroup}>
           <ProfileMenuItem
             icon="log-out-outline"
-            title="Logout"
+            title={t.logout}
             onPress={handleLogout}
             isDestructive={true}
           />

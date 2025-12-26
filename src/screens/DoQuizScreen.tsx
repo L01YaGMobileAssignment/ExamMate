@@ -9,6 +9,7 @@ import { QuestionType, QuizzesType } from "../types/document";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuizStore } from "../store/quizStore";
 import { Latex } from "../components/Latex";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "DoQuiz">;
 export default function QuizOverviewScreen({ route, navigation }: Props) {
@@ -19,6 +20,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
     const [selectedAnswer, setSelectedAnswer] = useState<number[]>([-1]);
     const [isShowResult, setIsShowResult] = useState(false);
     const [isSubmit, setIsSubmit] = useState(false);
+    const { t } = useTranslation();
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -103,7 +105,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                 {
                     isShowResult &&
                     <View style={styles.whyCorrectContainer}>
-                        <Text style={styles.whyCorrectTile}>Explain</Text>
+                        <Text style={styles.whyCorrectTile}>{t.explain}:</Text>
                         <Latex style={styles.whyCorrectText} textColor={colors.textSecondary} minHeight={120}>
                             {quiz_?.questions[currentQuestion].why_correct || ''}
                         </Latex>

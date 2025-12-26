@@ -26,10 +26,12 @@ import { generateQuiz } from "../services/quizzesService";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useQuizStore } from "../store/quizStore";
 import { useDocStore } from "../store/docStore";
+import { useTranslation } from "../utils/i18n/useTranslation";
 import { useSettingStore } from "../store/settingStore";
 
 type Props = NativeStackScreenProps<DocumentsStackParamList | RootStackParamList, "DocumentDetail">;
 export default function DocumentsDetailScreen({ route, navigation }: Props) {
+  const { t } = useTranslation();
   const [document, setDocument] = useState<DocumentType>(route.params.document);
   const [isLoading, setIsLoading] = useState(false);
   const numberOfQuestions = useSettingStore(state => state.numberOfQuestions);
@@ -52,7 +54,7 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
   if (!document) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text>No document data</Text>
+        <Text>{t.no_doc_data}</Text>
       </SafeAreaView>
     );
   }
@@ -73,7 +75,7 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
       }
     } catch (error) {
       console.error("Quiz generation failed:", error);
-      Alert.alert("Error", "Failed to generate quiz. Please try again later.");
+      Alert.alert(t.error, "Failed to generate quiz. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -81,12 +83,12 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
 
   const handleRemove = () => {
     Alert.alert(
-      "Are you sure?",
-      "This will delete the document and all its quizzes. This action cannot be undone.",
+      t.confirm_delete_doc,
+      t.delete_doc_msg,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t.cancel, style: "cancel" },
         {
-          text: "Delete",
+          text: t.delete,
           style: "destructive",
           onPress: async () => {
             try {
@@ -97,7 +99,7 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
                 navigation.navigate("Documents");
               }
             } catch (error) {
-              Alert.alert("Error", "Failed to delete document");
+              Alert.alert(t.error, "Failed to delete document");
             } finally {
               setIsLoading(false);
             }
@@ -143,17 +145,17 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
             if (await Sharing.isAvailableAsync()) {
               await Sharing.shareAsync(fileUri);
             } else {
-              Alert.alert("Error", "Sharing is not available on this device");
+              Alert.alert(t.error, t.share_unavailable);
             }
           } catch (e) {
-            Alert.alert("Error", "Failed to save file");
+            Alert.alert(t.error, t.save_file_fail);
           }
         };
 
         fileReader.readAsDataURL(new Blob([res.data]));
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to download document.");
+      Alert.alert(t.error, t.download_fail);
     } finally {
       setIsLoading(false);
     }
@@ -177,7 +179,7 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
           </Latex> :
           <View style={{ flexDirection: "column", justifyContent: "center", alignItems: "center", height: 500 }}>
             <ActivityIndicator size="large" color="#007AFF" />
-            <Text>Loading summary</Text>
+            <Text>{t.loading_summary}</Text>
           </View>
 
         }
@@ -187,16 +189,16 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
           {isLoading ? (
             <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
               <ActivityIndicator size="small" color="#fff" />
-              <Text style={styles.primaryBtnText}>Generating...</Text>
+              <Text style={styles.primaryBtnText}>{t.generating}</Text>
             </View>
-          ) : <Text style={styles.primaryBtnText}>Generate Quiz</Text>}
+          ) : <Text style={styles.primaryBtnText}>{t.generate_quiz}</Text>}
         </TouchableOpacity>
         <View style={styles.footerBottom}>
           <TouchableOpacity onPress={handleDownload} style={styles.primaryBtn} disabled={isLoading}>
-            {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.primaryBtnText}>Download</Text>}
+            {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.primaryBtnText}>{t.download}</Text>}
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleRemove()} style={styles.errBtn} disabled={isLoading}>
-            {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.primaryBtnText}>Remove</Text>}
+            {isLoading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.primaryBtnText}>{t.remove}</Text>}
           </TouchableOpacity>
         </View>
       </View>

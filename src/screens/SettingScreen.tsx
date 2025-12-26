@@ -14,22 +14,28 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { norm_colors as colors } from "../template/color";
 import { useSettingStore } from "../store/settingStore";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 export default function SettingScreen() {
     const navigation = useNavigation();
+    const { t } = useTranslation();
     const numberOfQuestions = useSettingStore(state => state.numberOfQuestions);
     const notifyTime = useSettingStore(state => state.notifyTime);
+    const language = useSettingStore(state => state.language);
     const setNumberOfQuestions = useSettingStore(state => state.setNumberOfQuestions);
     const setNotifyTime = useSettingStore(state => state.setNotifyTime);
+    const setLanguage = useSettingStore(state => state.setLanguage);
 
     const [tempNum, setTempNum] = useState(numberOfQuestions.toString());
     const [tempNotifyTime, setTempNotifyTime] = useState(notifyTime.toString());
+    const [tempLanguage, setTempLanguage] = useState(language);
 
     useEffect(() => {
         setTempNum(numberOfQuestions.toString());
         setTempNotifyTime(notifyTime.toString());
-    }, [numberOfQuestions, notifyTime]);
-
+        setTempLanguage(language);
+    }, [numberOfQuestions, notifyTime, language]);
+    // ...
     const handleSave = async () => {
         const num = parseInt(tempNum);
         const time = parseInt(tempNotifyTime);
@@ -39,21 +45,22 @@ export default function SettingScreen() {
 
         if (isNaN(num) || num <= 0) {
             isValid = false;
-            errorMessage = "Please enter a valid number of questions";
+            errorMessage = t.error_num_questions;
         } else if (isNaN(time) || time <= 0) {
             isValid = false;
-            errorMessage = "Please enter a valid notification time";
+            errorMessage = t.error_notify_time;
         }
 
         if (isValid) {
             await Promise.all([
                 setNumberOfQuestions(num),
-                setNotifyTime(time)
+                setNotifyTime(time),
+                setLanguage(tempLanguage)
             ]);
-            Alert.alert("Success", "Settings saved successfully");
+            Alert.alert(t.success, t.settings_saved);
             navigation.goBack();
         } else {
-            Alert.alert("Invalid input", errorMessage);
+            Alert.alert(t.invalid_input, errorMessage);
         }
     };
 
@@ -64,43 +71,61 @@ export default function SettingScreen() {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color={colors.text} />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Settings</Text>
+                    <Text style={styles.headerTitle}>{t.settings_title}</Text>
                     <View style={{ width: 24 }} />
                 </View>
 
                 <View style={styles.content}>
                     <View style={styles.settingItem}>
-                        <Text style={styles.label}>Number of Questions per Quiz</Text>
+                        <Text style={styles.label}>{t.language}</Text>
+                        <View style={styles.languageContainer}>
+                            <TouchableOpacity
+                                style={[styles.langButton, tempLanguage === 'en' && styles.langButtonActive]}
+                                onPress={() => setTempLanguage('en')}
+                            >
+                                <Text style={[styles.langText, tempLanguage === 'en' && styles.langTextActive]}>{t.english || "English"}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.langButton, tempLanguage === 'vi' && styles.langButtonActive]}
+                                onPress={() => setTempLanguage('vi')}
+                            >
+                                <Text style={[styles.langText, tempLanguage === 'vi' && styles.langTextActive]}>{t.vietnamese || "Tiếng Việt"}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View style={styles.settingItem}>
+                        <Text style={styles.label}>{t.num_questions}</Text>
                         <Text style={styles.description}>
-                            Set the default number of questions generated for each quiz.
+                            {t.desc_num_questions}
                         </Text>
                         <TextInput
                             style={styles.input}
                             value={tempNum}
                             onChangeText={setTempNum}
                             keyboardType="numeric"
-                            placeholder="e.g. 20"
+                            placeholder={t.input_placeholder_questions}
                             placeholderTextColor={colors.textSecondary}
                         />
                     </View>
 
                     <View style={styles.settingItem}>
-                        <Text style={styles.label}>Notify Before</Text>
+                        <Text style={styles.label}>{t.notify_before}</Text>
                         <Text style={styles.description}>
-                            Set how many minutes before an event to receive a notification.
+                            {t.desc_notify_before}
                         </Text>
                         <TextInput
                             style={styles.input}
                             value={tempNotifyTime}
                             onChangeText={setTempNotifyTime}
                             keyboardType="numeric"
-                            placeholder="e.g. 60"
+                            placeholder={t.input_placeholder_notify}
                             placeholderTextColor={colors.textSecondary}
                         />
                     </View>
 
                     <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                        <Text style={styles.saveButtonText}>Save Changes</Text>
+                        <Text style={styles.saveButtonText}>{t.save_changes}</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -173,5 +198,30 @@ const styles = StyleSheet.create({
         color: colors.white,
         fontSize: 16,
         fontWeight: "bold",
+    },
+    languageContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 10,
+    },
+    langButton: {
+        flex: 1,
+        paddingVertical: 10,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: colors.border,
+        alignItems: 'center',
+    },
+    langButtonActive: {
+        borderColor: colors.primary,
+        backgroundColor: colors.primaryLight,
+    },
+    langText: {
+        fontSize: 16,
+        color: colors.text,
+    },
+    langTextActive: {
+        color: colors.primary,
+        fontWeight: "600",
     },
 });

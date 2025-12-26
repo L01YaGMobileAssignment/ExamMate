@@ -22,6 +22,7 @@ import { ScheduleType } from "../types/schedule";
 import { getAllSchedules } from "../services/scheduleService";
 import { useScheduleStore } from "../store/schedule";
 import { norm_colors as colors } from "../template/color";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 
 const RecentDocumentCard = ({ title, iconName, bgColor, onPress }: any) => {
@@ -67,6 +68,7 @@ function TaskCard({ title, time, type }: { title: string, time: string, type: an
 
 type Props = NativeStackScreenProps<HomeStackParamList, "Home">;
 export default function HomeScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [user, setUser] = useState<UserType>();
   const [documents, setDocuments] = useState<DocumentType[]>([]);
   const [schedules, setSchedules] = useState<ScheduleType[]>([]);
@@ -156,10 +158,10 @@ export default function HomeScreen({ navigation }: Props) {
             source={{ uri: "https://picsum.photos/100/100" }}
             style={styles.profileAvatar}
           />
-          <Text style={styles.welcomeTitle}>Hello, {user?.username}</Text>
-          <Text style={styles.welcomeSubtitle}>Welcome back!</Text>
+          <Text style={styles.welcomeTitle}>{t.hello}, {user?.username}</Text>
+          <Text style={styles.welcomeSubtitle}>{t.welcome}</Text>
         </View>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <Text style={styles.sectionTitle}>{t.quick_actions}</Text>
         <View style={styles.quickActionsContainer}>
           <TouchableOpacity
             style={[styles.quickButton, styles.quickButtonPrimary]}
@@ -167,17 +169,17 @@ export default function HomeScreen({ navigation }: Props) {
               screen: "Documents"
             })}
           >
-            <Text style={styles.quickButtonTextPrimary}>Create Quiz</Text>
+            <Text style={styles.quickButtonTextPrimary}>{t.create_quiz}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.quickButton, styles.quickButtonSecondary]}
             onPress={() => handleMyQuizzes()}
           >
-            <Text style={styles.quickButtonTextSecondary}>My Quizzes</Text>
+            <Text style={styles.quickButtonTextSecondary}>{t.my_quizzes}</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.sectionTitle}>Recent Documents</Text>
-        {documents.length>0?(<ScrollView
+        <Text style={styles.sectionTitle}>{t.recent_documents}</Text>
+        {documents.length > 0 ? (<ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           style={styles.recentDocsScroller}
@@ -185,15 +187,15 @@ export default function HomeScreen({ navigation }: Props) {
           {documents.map((item, index) => (
             renderDocument(item)
           ))}
-        </ScrollView>):(
+        </ScrollView>) : (
           <Text style={{ color: colors.textSecondary, textAlign: "center" }}>
-            No recent documents found.
+            {t.no_recent_docs}
           </Text>
         )}
-        <Text style={styles.sectionTitle}>Upcoming Sessions</Text>
+        <Text style={styles.sectionTitle}>{t.upcoming_sessions}</Text>
         {upcomingSchedules.length === 0 ? (
           <Text style={{ color: colors.textSecondary, textAlign: "center" }}>
-            No upcoming sessions in the next 3 days.
+            {t.no_upcoming_sessions}
           </Text>
         ) : (upcomingSchedules
           .map((item, index, array) => {

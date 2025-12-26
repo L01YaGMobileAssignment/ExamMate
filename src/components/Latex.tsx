@@ -42,7 +42,7 @@ const MathJaxHTML = (content: string, color: string) => `
     window.onload = function() {
       function sendHeight() {
         const height = document.getElementById('content').scrollHeight;
-        window.ReactNativeWebView.postMessage(height + 20); // Add buffer
+        window.ReactNativeWebView.postMessage(height + 20);
       }
       
       setTimeout(sendHeight, 500);
