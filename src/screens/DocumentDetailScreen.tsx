@@ -26,11 +26,14 @@ import { generateQuiz } from "../services/quizzesService";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useQuizStore } from "../store/quizStore";
 import { useDocStore } from "../store/docStore";
+import { useSettingStore } from "../store/settingStore";
 
 type Props = NativeStackScreenProps<DocumentsStackParamList | RootStackParamList, "DocumentDetail">;
 export default function DocumentsDetailScreen({ route, navigation }: Props) {
   const [document, setDocument] = useState<DocumentType>(route.params.document);
   const [isLoading, setIsLoading] = useState(false);
+  const numberOfQuestions = useSettingStore(state => state.numberOfQuestions);
+
   useEffect(() => {
     const fetchData = async () => {
       if (document.summary !== null) { return; }
@@ -56,7 +59,7 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
   const handleGenerateQuiz = async () => {
     setIsLoading(true);
     try {
-      const res = await generateQuiz(document.id);
+      const res = await generateQuiz(document.id, numberOfQuestions);
       if (res.status === 200) {
         useQuizStore.getState().addQuiz(res.data);
         // @ts-ignore
@@ -143,7 +146,6 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
               Alert.alert("Error", "Sharing is not available on this device");
             }
           } catch (e) {
-            console.error("File save error:", e);
             Alert.alert("Error", "Failed to save file");
           }
         };
@@ -151,7 +153,6 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
         fileReader.readAsDataURL(new Blob([res.data]));
       }
     } catch (error) {
-      console.error("Download failed:", error);
       Alert.alert("Error", "Failed to download document.");
     } finally {
       setIsLoading(false);

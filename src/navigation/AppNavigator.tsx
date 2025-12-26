@@ -8,6 +8,7 @@ import OnBoardingScreen from "../screens/OnBoardingScreen";
 import LandingScreen from "../screens/LandingScreen";
 import BottomAppNavigator from "./BottomAppNavigator";
 import DocumentsDetailScreen from "../screens/DocumentDetailScreen";
+import SettingScreen from "../screens/SettingScreen";
 import { DocumentType } from "../types/document";
 import { getIsFirstUse } from "../store/secureStore";
 export type RootStackParamList = {
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   OnBoarding: undefined;
   Landing: undefined;
   Main: undefined;
+  Setting: undefined;
   DocumentDetail: { document: DocumentType };
 };
 
@@ -68,6 +70,11 @@ export default function AppNavigator() {
           name="DocumentDetail"
           component={DocumentsDetailScreen}
           options={{ title: "DocumentDetail", headerShown: false }}
+        />
+        <Stack.Screen
+          name="Setting"
+          component={SettingScreen}
+          options={{ title: "Settings", headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

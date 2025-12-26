@@ -6,7 +6,6 @@ import {
     FlatList,
     TouchableOpacity,
     ActivityIndicator,
-    Button,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { norm_colors as colors } from "../template/color";
@@ -57,7 +56,7 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
         if (onRefresh || onLoading || onLoadMore || !hasMounted) return;
         setOnRefresh(true);
         setCurrentPage(1);
-        const res = await getQuizzes(1, pageSize);
+        const res = await getQuizzes(1, pageSize, true);
         setListQuizzes(res.data);
         setOnRefresh(false);
     };
@@ -132,11 +131,11 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
                 </TouchableOpacity>
             </View>
             <InputText
-                        placeholder="Enter your quiz title"
-                        iconLeft="search-outline"
-                        style={styles.searchDoc}
-                        borderRadius={30}
-                        onChangeText={(title_key: string) => handleSearch(title_key)}
+                placeholder="Enter your quiz title"
+                iconLeft="search-outline"
+                style={styles.searchDoc}
+                borderRadius={30}
+                onChangeText={(title_key: string) => handleSearch(title_key)}
             ></InputText>
             {listQuizzes ? (
                 <View>
@@ -160,9 +159,9 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
                     />
                 </View>
             ) : (
-            <View style={styles.noDocumentContainer}>
-                <Text style={styles.noDocument}>No Quizzes found</Text>
-             </View>
+                <View style={styles.noDocumentContainer}>
+                    <Text style={styles.noDocument}>No Quizzes found</Text>
+                </View>
             )}
         </SafeAreaView>
     );
@@ -280,12 +279,12 @@ const styles = StyleSheet.create({
         paddingRight: 10,
     },
     noDocumentContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  noDocument: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    noDocument: {
+        fontSize: 16,
+        color: colors.textSecondary,
+    },
 });

@@ -99,7 +99,8 @@ export default function RegisterScreen({ navigation }: Props) {
                   onChangeText={setUserName}
                   secure={false}
                   autoCapitalize="none"
-                // iconLeft="person-outline"
+                  // iconLeft="person-outline"
+                  editable={!isLoading}
                 />
                 <InputText
                   label="Email Address"
@@ -108,7 +109,8 @@ export default function RegisterScreen({ navigation }: Props) {
                   onChangeText={setEmail}
                   secure={false}
                   autoCapitalize="none"
-                // iconLeft="mail-outline"
+                  // iconLeft="mail-outline"
+                  editable={!isLoading}
                 />
                 <InputText
                   label="Password"
@@ -120,6 +122,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   // iconLeft="lock-closed-outline"
                   iconRight={isPasswordVisible ? "eye-off" : "eye"}
                   onRightPress={togglePasswordVisibility}
+                  editable={!isLoading}
                 />
                 <InputText
                   label="Confirm Password"
@@ -131,6 +134,7 @@ export default function RegisterScreen({ navigation }: Props) {
                   // iconLeft="lock-closed-outline"
                   iconRight={isConfirmPasswordVisible ? "eye-off" : "eye"}
                   onRightPress={toggleConfirmPasswordVisibility}
+                  editable={!isLoading}
                 />
 
                 <TouchableOpacity style={styles.checkboxContainer} onPress={() => setIsAgreed(!isAgreed)}>

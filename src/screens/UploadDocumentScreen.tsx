@@ -58,7 +58,6 @@ export default function UploadDocumentScreen({ navigation }: Props) {
         });
       }
     } catch (err) {
-      // console.log("Unknown Error: ", err);
     }
   };
 
@@ -133,8 +132,16 @@ export default function UploadDocumentScreen({ navigation }: Props) {
       } else {
         Alert.alert("Error", "Failed to upload document.");
       }
-    } catch (error) {
-      Alert.alert("Error", "An error occurred during upload.");
+    } catch (error: any) {
+      if (error?.message?.includes("Invalid server response")) {
+        if (error?.response?.data && error.response.data.includes("413 Request Entity Too Large")) {
+          Alert.alert("Error", "File is too large. Please upload a smaller file.");
+        } else {
+          Alert.alert("Error", "Server error. Please try again later.");
+        }
+      } else {
+        Alert.alert("Error", error?.message || "An error occurred during upload.");
+      }
     } finally {
       setUploading(false);
     }

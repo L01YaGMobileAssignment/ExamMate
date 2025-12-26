@@ -60,7 +60,7 @@ export default function DocumentsScreen({ navigation }: Props) {
     if (onRefresh || onLoading || onLoadMore || !hasMounted) return;
     setOnRefresh(true);
     setCurrentPage(1);
-    const res = await getDocuments(1, pageSize);
+    const res = await getDocuments(1, pageSize, true);
     setListDocument(res.data);
     setOnRefresh(false);
   };
@@ -134,12 +134,12 @@ export default function DocumentsScreen({ navigation }: Props) {
         </TouchableOpacity>
       </View>
       <InputText
-            placeholder="Enter your document title"
-            iconLeft="search-outline"
-            style={styles.searchDoc}
-            borderRadius={30}
-            onChangeText={(title_key: string) => handleSearch(title_key)}
-          ></InputText>
+        placeholder="Enter your document title"
+        iconLeft="search-outline"
+        style={styles.searchDoc}
+        borderRadius={30}
+        onChangeText={(title_key: string) => handleSearch(title_key)}
+      ></InputText>
       {listDocument?.length > 0 ? (
         <View>
           <FlatList

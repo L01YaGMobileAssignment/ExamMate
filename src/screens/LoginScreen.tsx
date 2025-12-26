@@ -28,7 +28,7 @@ const logo = require("../../assets/Figma/Logo_Text.png");
 
 export default function LoginScreen({ navigation }: Props) {
   const setUser = useAuthStore(state => state.setUser);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -47,7 +47,7 @@ export default function LoginScreen({ navigation }: Props) {
     setIsLoading(true);
     try {
       const response = await SignInService({
-        username: email,
+        username: username,
         password,
       });
       if (response.status === 200) {
@@ -77,15 +77,16 @@ export default function LoginScreen({ navigation }: Props) {
               <Text style={styles.text}>Sign In</Text>
               <View style={styles.inputContainer}>
                 <InputText
-                  label="Email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChangeText={(text: string) => setEmail(text)}
+                  label="Username"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChangeText={(text: string) => setUsername(text)}
                   secure={false}
                   iconLeft="mail-outline"
                   autoCapitalize="none"
                   // iconRight="eye-off"
                   onRightPress={() => { }}
+                  editable={!isLoading}
                 />
                 <InputText
                   label="Password"
@@ -97,6 +98,7 @@ export default function LoginScreen({ navigation }: Props) {
                   iconRight={showPassword ? "eye-off" : "eye"}
                   autoCapitalize="none"
                   onRightPress={() => setShowPassword(!showPassword)}
+                  editable={!isLoading}
                 />
                 <TouchableOpacity
                   style={[styles.loginButton, isLoading && styles.disabledButton]}

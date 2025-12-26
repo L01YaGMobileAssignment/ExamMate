@@ -49,7 +49,6 @@ export default function ScheduleScreen({ navigation }: any) {
         setSchedules(res.data);
       }
     } catch (error) {
-      console.log("Error fetching schedules:", error);
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +113,6 @@ export default function ScheduleScreen({ navigation }: any) {
                 setEditingScheduleId(null);
               }
             } catch (error) {
-              console.error("Failed to delete schedule:", error);
               Alert.alert("Error", "Failed to delete schedule");
             } finally {
               setIsLoading(false);
@@ -144,6 +142,7 @@ export default function ScheduleScreen({ navigation }: any) {
 
     setIsSaving(true);
     try {
+      // Construct date in local time
       const [year, month, day] = modalDate.split('-').map(Number);
 
       const startDateTime = new Date(year, month - 1, day, startHour, startMinute).getTime();

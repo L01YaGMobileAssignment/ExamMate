@@ -20,6 +20,7 @@ type InputTextProps = {
   style?: any;
   borderRadius?: number;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  editable?: boolean;
 };
 
 const InputText = ({
@@ -34,7 +35,8 @@ const InputText = ({
   error,
   style,
   borderRadius,
-  autoCapitalize
+  autoCapitalize,
+  editable = true
 }: InputTextProps) => {
   const [hide, setHide] = useState(secure);
 
@@ -42,7 +44,7 @@ const InputText = ({
     <View style={[style, styles.container]}>
       {label && <Text style={styles.label}>{label}</Text>}
 
-      <View style={[styles.inputWrapper, { borderRadius: borderRadius }]}>
+      <View style={[styles.inputWrapper, { borderRadius: borderRadius }, !editable && styles.disabledInputWrapper]}>
         {iconLeft && (
           <TouchableOpacity onPress={onRightPress} style={styles.leftIcon}>
             <Ionicons name={iconLeft} size={20} color="#999" />
@@ -56,6 +58,7 @@ const InputText = ({
           secureTextEntry={hide}
           placeholderTextColor="#999"
           autoCapitalize={autoCapitalize}
+          editable={editable}
         />
         {iconRight && (
           <TouchableOpacity onPress={onRightPress} style={styles.rightIcon}>
@@ -124,6 +127,11 @@ const styles = StyleSheet.create({
     color: "red",
     marginTop: 5,
     fontSize: 13,
+  },
+
+  disabledInputWrapper: {
+    backgroundColor: '#f5f5f5',
+    borderColor: '#e0e0e0',
   },
 
 });
