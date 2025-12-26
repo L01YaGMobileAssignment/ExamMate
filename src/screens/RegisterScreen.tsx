@@ -53,7 +53,6 @@ export default function RegisterScreen({ navigation }: Props) {
         password: password,
         email: email,
       });
-
       if (response.status === 200 || response.status === 201) {
         Alert.alert("Success", "Account created successfully. Please login.", [
           { text: "OK", onPress: () => navigation.navigate("Login") }
@@ -63,7 +62,6 @@ export default function RegisterScreen({ navigation }: Props) {
       }
 
     } catch (error: any) {
-      console.log(error);
       const msg = error.response?.data?.detail || "Registration failed. Please try again.";
       Alert.alert("Error", msg);
     } finally {
@@ -100,7 +98,9 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={userName}
                   onChangeText={setUserName}
                   secure={false}
-                // iconLeft="person-outline"
+                  autoCapitalize="none"
+                  // iconLeft="person-outline"
+                  editable={!isLoading}
                 />
                 <InputText
                   label="Email Address"
@@ -108,7 +108,9 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={email}
                   onChangeText={setEmail}
                   secure={false}
-                // iconLeft="mail-outline"
+                  autoCapitalize="none"
+                  // iconLeft="mail-outline"
+                  editable={!isLoading}
                 />
                 <InputText
                   label="Password"
@@ -116,9 +118,11 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={password}
                   onChangeText={setPassword}
                   secure={!isPasswordVisible}
+                  autoCapitalize="none"
                   // iconLeft="lock-closed-outline"
                   iconRight={isPasswordVisible ? "eye-off" : "eye"}
                   onRightPress={togglePasswordVisibility}
+                  editable={!isLoading}
                 />
                 <InputText
                   label="Confirm Password"
@@ -126,9 +130,11 @@ export default function RegisterScreen({ navigation }: Props) {
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secure={!isConfirmPasswordVisible}
+                  autoCapitalize="none"
                   // iconLeft="lock-closed-outline"
                   iconRight={isConfirmPasswordVisible ? "eye-off" : "eye"}
                   onRightPress={toggleConfirmPasswordVisibility}
+                  editable={!isLoading}
                 />
 
                 <TouchableOpacity style={styles.checkboxContainer} onPress={() => setIsAgreed(!isAgreed)}>

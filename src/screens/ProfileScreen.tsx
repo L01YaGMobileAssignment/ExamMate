@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../store/useAuthStore";
@@ -16,6 +17,7 @@ import { resetAndNavigate } from "../navigation/navigationRef";
 import { norm_colors as colors } from "../template/color";
 import { useQuizStore } from "../store/quizStore";
 import { useDocStore } from "../store/docStore";
+import { useScheduleStore } from "../store/schedule";
 
 interface ProfileMenuItemProps {
   icon: any;
@@ -55,6 +57,8 @@ const ProfileMenuItem = ({
 
 export default function ProfileScreen() {
   const user = useAuthStore(state => state.user);
+  const navigation = useNavigation<any>();
+
   const handleLogout = () => {
     Alert.alert("Log Out", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
@@ -65,8 +69,8 @@ export default function ProfileScreen() {
           await clearAuth();
           useQuizStore.getState().clearQuizzes();
           useDocStore.getState().clearDocs();
+          useScheduleStore.getState().clearSchedules();
           resetAndNavigate("Login");
-          
         },
       },
     ]);
@@ -89,6 +93,13 @@ export default function ProfileScreen() {
         <Text style={styles.sectionTitle}>Account</Text>
         <View style={styles.menuGroup}>
           <ProfileMenuItem
+            icon="person-circle-outline"
+            title="Edit Profile Information"
+            onPress={() =>
+              Alert.alert("Not implemented", "Functionality not implemented.")
+            }
+          />
+          <ProfileMenuItem
             icon="time-outline"
             title="History"
             onPress={() =>
@@ -98,6 +109,17 @@ export default function ProfileScreen() {
           <ProfileMenuItem
             icon="settings-outline"
             title="Settings"
+            onPress={() => {
+              navigation.navigate("Setting");
+            }}
+          />
+        </View>
+
+        <Text style={styles.sectionTitle}>Support</Text>
+        <View style={styles.menuGroup}>
+          <ProfileMenuItem
+            icon="help-circle-outline"
+            title="Help & Support"
             onPress={() =>
               Alert.alert("Not implemented", "Functionality not implemented.")
             }
@@ -114,7 +136,7 @@ export default function ProfileScreen() {
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 

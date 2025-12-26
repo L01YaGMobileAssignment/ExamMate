@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { QuizzesType,QuestionType } from "../types/document";
+import { QuizzesType, QuestionType } from "../types/document";
 
 interface QuizState {
   quizzes: QuizzesType[];
@@ -8,6 +8,7 @@ interface QuizState {
   addQuiz: (quiz: QuizzesType) => void;
   removeQuiz: (quizId: string) => void;
   clearQuizzes: () => void;
+  updateQuiz: (quizId: string, question: QuestionType[]) => void;
 }
 
 export const useQuizStore = create<QuizState>(set => ({
@@ -29,5 +30,14 @@ export const useQuizStore = create<QuizState>(set => ({
   clearQuizzes: () =>
     set(state => ({
       quizzes: [],
+    })),
+  updateQuiz: (quizId: string, questions: QuestionType[]) =>
+    set(state => ({
+      quizzes: state.quizzes.map(item => {
+        if (item.quiz_id === quizId) {
+          return { ...item, questions };
+        }
+        return item;
+      }),
     })),
 }));

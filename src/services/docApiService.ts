@@ -1,16 +1,17 @@
 import axios from "./api";
 import { apiEndpoints } from "./endpoints";
-import { DocumentType, QuizzesType } from "../types/document";
+import { DocumentType } from "../types/document";
 import { AxiosResponse } from "axios";
 
 export const getDocuments = async (
   page: number = 1,
-  pageSize: number = 8
+  pageSize: number = 8,
+  refresh: boolean = false
 ): Promise<AxiosResponse<DocumentType[]>> => {
 
   var res: AxiosResponse<DocumentType[]>;
   const documents = useDocStore.getState().docs;
-  if (documents.length === 0) {
+  if (refresh || documents.length === 0) {
     res = await axios.get<DocumentType[]>(apiEndpoints.getDocuments, {
       params: { page, pageSize },
     });
@@ -20,6 +21,8 @@ export const getDocuments = async (
     res = {
       status: 200,
       data: documents,
+      // @ts-ignore
+      headers: {}, config: {}, statusText: "OK"
     };
     return res;
   }
@@ -36,12 +39,7 @@ export const getDocumentById = async (id: string) => {
 export const getDocumentsByTitleKey = async (
   title: string
 ): Promise<AxiosResponse<DocumentType[]>> => {
-  var res = await axios.get<DocumentType[]>(apiEndpoints.getDocuments);
-  const filtered = res.data.filter(item => {
-      if (!item.title && !item.filename) return false;
-      return item?.title?.toLowerCase().includes(title.toLowerCase()) || item?.filename?.toLowerCase().includes(title.toLowerCase());
-  });
-  res.data = filtered;
+  const res = await axios.get<DocumentType[]>(apiEndpoints.searchDocumentByKey, { params: { q: title } });
   return res;
 };
 
@@ -96,11 +94,18 @@ export const removeDocument = async (quizId: string) => {
 };
 
 export const viewFullDocument = async (id: string) => {
-  const res = await axios.get(apiEndpoints.viewFullDocument.replace(":id", id));
+  const res = await axios.get(apiEndpoints.downloadDocument.replace(":id", id), {
+    responseType: "blob",
+  });
   return res;
 };
 
 export const deleteDocument = async (id: string) => {
   const res = await axios.delete(apiEndpoints.deleteDocument.replace(":id", id));
+  return res;
+};
+
+export const downloadDocument = async (id: string) => {
+  const res = await axios.get(apiEndpoints.downloadDocument.replace(":id", id));
   return res;
 };

@@ -6,6 +6,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { getQuizById } from "../services/quizzesService";
 import { QuizzesType } from "../types/document";
+import { useQuizStore } from "../store/quizStore";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "QuizOverview">;
 export default function QuizOverviewScreen({ route, navigation }: Props) {
@@ -15,17 +16,20 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
-            if (quiz?.questions.length !== 0) {
+            if (!quiz?.questions?.length) {
+                const res = await getQuizById(quiz?.quiz_id);
+                if (res.status === 200) {
+                    const data = res.data;
+                    setQuiz_(data);
+                    useQuizStore.getState().updateQuiz(data.quiz_id, data.questions);
+                } else {
+                    Alert.alert("Error", "Failed to get quiz data.");
+                    navigation.navigate("Home");
+            }}
+            else {
                 setQuiz_(quiz);
+                setIsLoading(false);
                 return;
-            }
-            const res = await getQuizById(quiz?.quiz_id);
-            if (res.status === 200) {
-                const data = res.data;
-                setQuiz_(data);
-            } else {
-                Alert.alert("Error", "Failed to get quiz data.");
-                navigation.navigate("Home");
             }
             setIsLoading(false);
         };
@@ -41,17 +45,17 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                     Quiz OverView
                 </Text>
                 <Text style={styles.subtitle}>
-                    {quiz_?.quiz_title}
+                    {quiz_?.quiz_title || quiz_?.quiz_id}
                 </Text>
             </View>
             <View style={styles.content}>
                 {/* <Text style={styles.text}>Quiz ID: {quiz_?.quiz_id}</Text> */}
                 <View style={styles.textContainer}>
-                    <Text style={styles.text}>Number of questions: {quiz_?.questions.length}</Text>
+                    <Text style={styles.text}>Number of questions: {quiz_?.questions?.length}</Text>
                 </View>
                 <View style={styles.separator} />
                 <View style={styles.textContainer}>
-                    <Text style={styles.text}>Estimate time: {quiz_?.questions.length} minutes</Text>
+                    <Text style={styles.text}>Estimate time: {quiz_?.questions?.length} minutes</Text>
                 </View>
                 <View style={styles.separator} />
                 <View style={styles.textContainer}>
