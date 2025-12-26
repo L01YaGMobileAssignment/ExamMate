@@ -36,6 +36,14 @@
         "projectId": "8f904721-55ed-44bd-b084-8663099c30fd"
       }
     },
-    "owner": "tnbao2004"
+    "owner": "tnbao2004",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8f904721-55ed-44bd-b084-8663099c30fd",
+      "channel": "preview",
+      "checkAutomatically": "ON_LOAD"
+    }
   }
 }
