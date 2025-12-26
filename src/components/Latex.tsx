@@ -61,20 +61,21 @@ interface LatexProps {
   children: string;
   style?: ViewStyle;
   textColor?: string;
+  minHeight?: number;
 }
 
-export const Latex = ({ children, style, textColor = '#000000' }: LatexProps) => {
-  const [height, setHeight] = useState(500);
+export const Latex = ({ children, style, textColor = '#000000', minHeight = 500 }: LatexProps) => {
+  const [height, setHeight] = useState(minHeight);
 
   const processedContent = children;
 
   return (
-    <View style={[style, { height, minHeight: 500 }]}>
+    <View style={[style, { height, minHeight }]}>
       <WebView
         originWhitelist={['*']}
         source={{ html: MathJaxHTML(processedContent, textColor) }}
         style={{ backgroundColor: 'transparent' }}
-        scrollEnabled={true}
+        scrollEnabled={false}
         onMessage={(event) => {
           const newHeight = Number(event.nativeEvent.data);
           if (!isNaN(newHeight) && newHeight > 0) {
