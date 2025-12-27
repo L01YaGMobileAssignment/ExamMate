@@ -81,7 +81,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
     const renderQuestion = (question: QuestionType) => {
         return (
             <View style={styles.questionContainer}>
-                <Latex style={styles.questionText} minHeight={150} maxHeight={200}>{question.question}</Latex>
+                <Latex style={styles.questionText} minHeight={84} maxHeight={80}>{question.question}</Latex>
                 <View style={styles.answerContainer}>
                     {question.options.map((option, index) => (
                         <TouchableOpacity key={question.id + "answer" + index} style={
@@ -106,7 +106,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                     isShowResult &&
                     <View style={styles.whyCorrectContainer}>
                         <Text style={styles.whyCorrectTile}>{t.explain}:</Text>
-                        <Latex style={styles.whyCorrectText} textColor={colors.textSecondary} minHeight={120} maxHeight={110}>
+                        <Latex style={styles.whyCorrectText} textColor={colors.textSecondary} minHeight={96} maxHeight={90}>
                             {quiz_?.questions[currentQuestion].why_correct || ''}
                         </Latex>
                     </View>
