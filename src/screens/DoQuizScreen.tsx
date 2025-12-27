@@ -81,7 +81,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
     const renderQuestion = (question: QuestionType) => {
         return (
             <View style={styles.questionContainer}>
-                <Latex style={styles.questionText} minHeight={150}>{question.question}</Latex>
+                <Latex style={styles.questionText} minHeight={150} maxHeight={200}>{question.question}</Latex>
                 <View style={styles.answerContainer}>
                     {question.options.map((option, index) => (
                         <TouchableOpacity key={question.id + "answer" + index} style={
@@ -98,7 +98,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                             disabled={isShowResult}
                         >
                             <Ionicons name={selectedAnswer[currentQuestion] === index ? "radio-button-on" : "radio-button-off"} size={24} color={colors.primary} />
-                            <Latex style={{ flex: 1, backgroundColor: 'transparent' }} textColor={colors.text} minHeight={24}>{option}</Latex>
+                            <Latex style={{ flex: 1, backgroundColor: 'transparent' }} textColor={colors.text} minHeight={48} maxHeight={40}>{option}</Latex>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -106,7 +106,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                     isShowResult &&
                     <View style={styles.whyCorrectContainer}>
                         <Text style={styles.whyCorrectTile}>{t.explain}:</Text>
-                        <Latex style={styles.whyCorrectText} textColor={colors.textSecondary} minHeight={120}>
+                        <Latex style={styles.whyCorrectText} textColor={colors.textSecondary} minHeight={120} maxHeight={110}>
                             {quiz_?.questions[currentQuestion].why_correct || ''}
                         </Latex>
                     </View>

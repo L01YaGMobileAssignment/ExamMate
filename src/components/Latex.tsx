@@ -30,6 +30,8 @@ const MathJaxHTML = (content: string, color: string) => `
       padding: 0;
       background-color: transparent;
       overflow: auto;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     #content {
       padding: 1px; /* Prevent margin collapse */
@@ -62,27 +64,31 @@ interface LatexProps {
   style?: ViewStyle;
   textColor?: string;
   minHeight?: number;
+  maxHeight?: number;
 }
 
-export const Latex = ({ children, style, textColor = '#000000', minHeight = 500 }: LatexProps) => {
+export const Latex = ({ children, style, textColor = '#000000', minHeight = 500, maxHeight }: LatexProps) => {
   const [height, setHeight] = useState(minHeight);
 
   const processedContent = children;
+  const isScrollable = !!maxHeight && height > maxHeight;
+  const displayHeight = isScrollable ? maxHeight : height;
 
   return (
-    <View style={[style, { height, minHeight }]}>
+    <View style={[style, { height: displayHeight, minHeight }]}>
       <WebView
         originWhitelist={['*']}
         source={{ html: MathJaxHTML(processedContent, textColor) }}
         style={{ backgroundColor: 'transparent' }}
-        scrollEnabled={false}
+        scrollEnabled={isScrollable}
+        nestedScrollEnabled={isScrollable}
         onMessage={(event) => {
           const newHeight = Number(event.nativeEvent.data);
           if (!isNaN(newHeight) && newHeight > 0) {
             setHeight(newHeight);
           }
         }}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={isScrollable}
       />
     </View>
   );
