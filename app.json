@@ -29,7 +29,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-updates",
+        {
+          "username": "tnbao2004"
+        }
+      ]
     ],
     "extra": {
       "eas": {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { norm_colors as colors } from "../template/color";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -8,6 +8,8 @@ import { getQuizById } from "../services/quizzesService";
 import { QuestionType, QuizzesType } from "../types/document";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuizStore } from "../store/quizStore";
+import { Latex } from "../components/Latex";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "DoQuiz">;
 export default function QuizOverviewScreen({ route, navigation }: Props) {
@@ -18,6 +20,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
     const [selectedAnswer, setSelectedAnswer] = useState<number[]>([-1]);
     const [isShowResult, setIsShowResult] = useState(false);
     const [isSubmit, setIsSubmit] = useState(false);
+    const { t } = useTranslation();
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -29,6 +32,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
             const res = await getQuizById(quiz?.quizz_id);
             if (res.status === 200) {
                 const data = res.data;
+                console.log(data);
                 setQuiz_(data);
                 useQuizStore.getState().updateQuiz(data.quiz_id, data.questions);
             }
@@ -77,7 +81,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
     const renderQuestion = (question: QuestionType) => {
         return (
             <View style={styles.questionContainer}>
-                <Text style={styles.questionText}>{question.question}</Text>
+                <Latex style={styles.questionText} minHeight={84} maxHeight={80}>{question.question}</Latex>
                 <View style={styles.answerContainer}>
                     {question.options.map((option, index) => (
                         <TouchableOpacity key={question.id + "answer" + index} style={
@@ -94,10 +98,20 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                             disabled={isShowResult}
                         >
                             <Ionicons name={selectedAnswer[currentQuestion] === index ? "radio-button-on" : "radio-button-off"} size={24} color={colors.primary} />
-                            <Text style={styles.answerBtnText}>{option}</Text>
+                            <Latex style={{ flex: 1, backgroundColor: 'transparent' }} textColor={colors.text} minHeight={48} maxHeight={40}>{option}</Latex>
                         </TouchableOpacity>
                     ))}
                 </View>
+                {
+                    isShowResult &&
+                    <View style={styles.whyCorrectContainer}>
+                        <Text style={styles.whyCorrectTile}>{t.explain}:</Text>
+                        <Latex style={styles.whyCorrectText} textColor={colors.textSecondary} minHeight={96} maxHeight={90}>
+                            {quiz_?.questions[currentQuestion].why_correct || ''}
+                        </Latex>
+                    </View>
+                }
+
             </View>
         );
     };
@@ -123,8 +137,13 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                             <View style={[styles.processBar, { width: `${((currentQuestion + 1) / (quiz_?.questions.length || 1)) * 100}%` }]} />
                         </View>
                     </View>
-                    {renderQuestion(quiz_?.questions[currentQuestion])}
-                    <TouchableOpacity onPress={() => handleSubmitQuestion()} style={selectedAnswer[currentQuestion] === -1 ? styles.disabledPrimaryBtn : styles.primaryBtn} disabled={selectedAnswer[currentQuestion] === -1}>
+                    <ScrollView style={{ flex: 1 }}>
+                        {renderQuestion(quiz_?.questions[currentQuestion])}
+                    </ScrollView>
+                    <TouchableOpacity onPress={() => handleSubmitQuestion()} style={[
+                        selectedAnswer[currentQuestion] === -1 ? styles.disabledPrimaryBtn : styles.primaryBtn,
+                        { marginBottom: 20 }
+                    ]} disabled={selectedAnswer[currentQuestion] === -1}>
                         <Text style={selectedAnswer[currentQuestion] === -1 ? styles.disabledBtnText : styles.primaryBtnText}>{currentQuestion === quiz_?.questions.length - 1 ? "Submit" : "Next"}</Text>
                     </TouchableOpacity></> :
                 <>
@@ -176,7 +195,6 @@ const styles = StyleSheet.create({
     },
     questionContainer: {
         padding: 8,
-        alignItems: "flex-start",
     },
     answerBtn: {
         backgroundColor: colors.primaryLight,
@@ -214,7 +232,6 @@ const styles = StyleSheet.create({
         width: "100%",
         flexDirection: "column",
         gap: 10,
-        alignItems: "center",
     },
     backButtonText: {
         color: colors.primary,
@@ -323,5 +340,24 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         marginRight: 8,
         marginTop: 8,
+    },
+    whyCorrectContainer: {
+        marginBottom: 8,
+        marginLeft: 8,
+        marginRight: 8,
+        marginTop: 8,
+        maxHeight: 200,
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+    },
+    whyCorrectTile: {
+        fontSize: 16,
+        color: colors.text,
+        marginBottom: 8,
+    },
+    whyCorrectText: {
+        fontSize: 14,
+        color: colors.textSecondary,
+        marginBottom: 8,
     },
 });

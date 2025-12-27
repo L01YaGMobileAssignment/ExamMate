@@ -7,8 +7,26 @@ import { useSettingStore } from "./store/settingStore";
 import { Alert, AppState, Linking } from "react-native";
 import { registerForPushNotificationsAsync } from "./services/notificationService";
 
+import * as Updates from 'expo-updates';
+
 export default function App() {
   React.useEffect(() => {
+    async function onFetchUpdateAsync() {
+      if (__DEV__) return;
+      try {
+        const update = await Updates.checkForUpdateAsync();
+
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        console.log(`Error fetching update: ${error}`);
+      }
+    }
+
+    onFetchUpdateAsync();
+
     useSettingStore.getState().loadSettings();
 
     const checkNotificationPermission = async () => {
@@ -40,6 +58,7 @@ export default function App() {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState === "active") {
         checkNotificationPermission();
+        if (!__DEV__) onFetchUpdateAsync();
       }
     });
 

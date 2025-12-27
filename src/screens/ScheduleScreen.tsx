@@ -19,8 +19,10 @@ import { getAllSchedules, createSchedule, updateScheduleById, deleteScheduleById
 import { registerForPushNotificationsAsync, scheduleEventNotification, sendCreationNotification } from "../services/notificationService";
 import { ScheduleType } from "../types/schedule";
 import { useScheduleStore } from "../store/schedule";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 export default function ScheduleScreen({ navigation }: any) {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState(() => {
     const today = new Date();
     return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
@@ -94,12 +96,12 @@ export default function ScheduleScreen({ navigation }: any) {
     if (!editingScheduleId) return;
 
     Alert.alert(
-      "Confirm Delete",
-      "Are you sure you want to delete this schedule?",
+      t.confirm_delete_schedule,
+      t.delete_schedule_msg,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t.cancel, style: "cancel" },
         {
-          text: "Delete",
+          text: t.delete,
           style: "destructive",
           onPress: async () => {
             setIsLoading(true);
@@ -107,12 +109,12 @@ export default function ScheduleScreen({ navigation }: any) {
               const res = await deleteScheduleById(editingScheduleId);
               if (res.status === 200) {
                 fetchData();
-                Alert.alert("Success", "Schedule deleted successfully");
+                Alert.alert(t.success, t.schedule_deleted);
                 setModalVisible(false);
                 setEditingScheduleId(null);
               }
             } catch (error) {
-              Alert.alert("Error", "Failed to delete schedule");
+              Alert.alert(t.error, "Failed to delete schedule");
             } finally {
               setIsLoading(false);
             }
@@ -124,7 +126,7 @@ export default function ScheduleScreen({ navigation }: any) {
 
   const handleSave = async () => {
     if (!title || !startTime || !endTime) {
-      Alert.alert("Missing Fields", "Please fill in title and times.");
+      Alert.alert(t.missing_fields, t.fill_title_time);
       return;
     }
 
@@ -135,7 +137,7 @@ export default function ScheduleScreen({ navigation }: any) {
     const endTotalMinutes = endHour * 60 + endMinute;
 
     if (endTotalMinutes <= startTotalMinutes) {
-      Alert.alert("Invalid Time", "End time must be later than start time.");
+      Alert.alert(t.invalid_time, t.end_time_error);
       return;
     }
 
@@ -161,7 +163,7 @@ export default function ScheduleScreen({ navigation }: any) {
           fetchData();
           useScheduleStore.getState().updateSchedule(editingScheduleId, res.data);
           await scheduleEventNotification(title, startDateTime);
-          Alert.alert("Success", "Schedule updated successfully");
+          Alert.alert(t.success, t.schedule_updated);
         }
       } else {
         res = await createSchedule(scheduleData);
@@ -169,7 +171,7 @@ export default function ScheduleScreen({ navigation }: any) {
           useScheduleStore.getState().addSchedule(res.data);
           await scheduleEventNotification(title, startDateTime);
           await sendCreationNotification(title);
-          Alert.alert("Success", "Schedule created successfully");
+          Alert.alert(t.success, t.schedule_created);
         }
       }
 
@@ -177,7 +179,7 @@ export default function ScheduleScreen({ navigation }: any) {
       setEditingScheduleId(null);
     } catch (error) {
       console.error("Failed to save schedule:", error);
-      Alert.alert("Error", "Failed to save schedule");
+      Alert.alert(t.error, "Failed to save schedule");
     } finally {
       setIsSaving(false);
     }
@@ -217,18 +219,18 @@ export default function ScheduleScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Study Schedule</Text>
+        <Text style={styles.headerTitle}>{t.study_schedule}</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.tabsContainer}>
         <TouchableOpacity style={styles.tabButton} onPress={() => setActiveTab('Timeline')}>
-          <Text style={[styles.tabText, activeTab === 'Timeline' && styles.activeTabText]}>Timeline</Text>
+          <Text style={[styles.tabText, activeTab === 'Timeline' && styles.activeTabText]}>{t.timeline}</Text>
           {activeTab === 'Timeline' && <View style={styles.activeLine} />}
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.tabButton} onPress={() => setActiveTab('List')}>
-          <Text style={[styles.tabText, activeTab === 'List' && styles.activeTabText]}>List</Text>
+          <Text style={[styles.tabText, activeTab === 'List' && styles.activeTabText]}>{t.list}</Text>
           {activeTab === 'List' && <View style={styles.activeLine} />}
         </TouchableOpacity>
       </View>
@@ -259,7 +261,7 @@ export default function ScheduleScreen({ navigation }: any) {
             </View>
 
             <Text style={styles.todayTitle}>
-              {selected === new Date().toISOString().split('T')[0] ? "Today" : selected}
+              {selected === new Date().toISOString().split('T')[0] ? t.today : selected}
             </Text>
 
             {isLoading ? (
@@ -282,7 +284,7 @@ export default function ScheduleScreen({ navigation }: any) {
                 )
               })
             ) : (
-              <Text style={styles.emptyText}>No schedules for this day.</Text>
+              <Text style={styles.emptyText}>{t.no_schedule_day}</Text>
             )}
           </>
         ) : (
@@ -320,7 +322,7 @@ export default function ScheduleScreen({ navigation }: any) {
                     )
                   })
               ) : (
-                <Text style={styles.emptyText}>No schedules found.</Text>
+                <Text style={styles.emptyText}>{t.no_schedule_found}</Text>
               )}
             </View>
           </>
@@ -347,14 +349,14 @@ export default function ScheduleScreen({ navigation }: any) {
             >
               <Ionicons name="close" size={24} color="#333" />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>{editingScheduleId ? "Edit Schedule" : "Add New Schedule"}</Text>
+            <Text style={styles.modalTitle}>{editingScheduleId ? t.edit_schedule : t.add_schedule}</Text>
 
             <View style={{ marginBottom: 16 }}>
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
                 onPress={() => setShowDatePicker(!showDatePicker)}
               >
-                <Text style={{ fontSize: 16, color: '#666' }}>Date: <Text style={{ fontWeight: '600', color: '#2A74F5' }}>{modalDate}</Text></Text>
+                <Text style={{ fontSize: 16, color: '#666' }}>{t.date}: <Text style={{ fontWeight: '600', color: '#2A74F5' }}>{modalDate}</Text></Text>
               </TouchableOpacity>
 
               {showDatePicker && (
@@ -378,18 +380,18 @@ export default function ScheduleScreen({ navigation }: any) {
               )}
             </View>
 
-            <Text style={styles.inputLabel}>Title</Text>
+            <Text style={styles.inputLabel}>{t.title}</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="e.g. Math Review"
+              placeholder={t.title_placeholder}
               value={title}
               onChangeText={setTitle}
             />
 
-            <Text style={styles.inputLabel}>Description</Text>
+            <Text style={styles.inputLabel}>{t.description}</Text>
             <TextInput
               style={[styles.textInput, { height: 80, textAlignVertical: 'top' }]}
-              placeholder="Details..."
+              placeholder={t.details_placeholder}
               value={description}
               onChangeText={setDescription}
               multiline={true}
@@ -398,7 +400,7 @@ export default function ScheduleScreen({ navigation }: any) {
 
             <View style={styles.row}>
               <View style={styles.halfInput}>
-                <Text style={styles.inputLabel}>Start Time</Text>
+                <Text style={styles.inputLabel}>{t.start_time}</Text>
                 <TouchableOpacity
                   style={styles.textInput}
                   onPress={() => setShowTimePicker('start')}
@@ -407,7 +409,7 @@ export default function ScheduleScreen({ navigation }: any) {
                 </TouchableOpacity>
               </View>
               <View style={styles.halfInput}>
-                <Text style={styles.inputLabel}>End Time</Text>
+                <Text style={styles.inputLabel}>{t.end_time}</Text>
                 <TouchableOpacity
                   style={styles.textInput}
                   onPress={() => setShowTimePicker('end')}
@@ -455,7 +457,7 @@ export default function ScheduleScreen({ navigation }: any) {
                 style={{ alignItems: 'center', padding: 10, backgroundColor: '#f0f0f0', borderRadius: 8, marginBottom: 10 }}
                 onPress={() => setShowTimePicker(null)}
               >
-                <Text style={{ color: '#007AFF', fontWeight: 'bold' }}>Done</Text>
+                <Text style={{ color: '#007AFF', fontWeight: 'bold' }}>{t.done}</Text>
               </TouchableOpacity>
             )}
 
@@ -465,7 +467,7 @@ export default function ScheduleScreen({ navigation }: any) {
                   style={[styles.modalBtn, { backgroundColor: '#FF3B30', marginRight: 6 }]}
                   onPress={handleDelete}
                 >
-                  <Text style={styles.saveBtnText}>Delete</Text>
+                  <Text style={styles.saveBtnText}>{t.delete}</Text>
                 </TouchableOpacity>
               )}
 
@@ -477,7 +479,7 @@ export default function ScheduleScreen({ navigation }: any) {
                 {isSaving ? (
                   <ActivityIndicator color="#fff" size="small" />
                 ) : (
-                  <Text style={styles.saveBtnText}>Save</Text>
+                  <Text style={styles.saveBtnText}>{t.save}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -485,7 +487,7 @@ export default function ScheduleScreen({ navigation }: any) {
         </View>
       </Modal>
 
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 

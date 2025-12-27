@@ -14,7 +14,8 @@ export type QuestionType = {
   question: string,
   options: [string],
   answer_index: number,
-  correct_answer: string
+  correct_answer: string,
+  why_correct: string,
 }
 
 export type QuizzesType = {

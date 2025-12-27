@@ -30,6 +30,8 @@ const MathJaxHTML = (content: string, color: string) => `
       padding: 0;
       background-color: transparent;
       overflow: auto;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     #content {
       padding: 1px; /* Prevent margin collapse */
@@ -42,7 +44,7 @@ const MathJaxHTML = (content: string, color: string) => `
     window.onload = function() {
       function sendHeight() {
         const height = document.getElementById('content').scrollHeight;
-        window.ReactNativeWebView.postMessage(height + 20); // Add buffer
+        window.ReactNativeWebView.postMessage(height + 20);
       }
       
       setTimeout(sendHeight, 500);
@@ -61,27 +63,32 @@ interface LatexProps {
   children: string;
   style?: ViewStyle;
   textColor?: string;
+  minHeight?: number;
+  maxHeight?: number;
 }
 
-export const Latex = ({ children, style, textColor = '#000000' }: LatexProps) => {
-  const [height, setHeight] = useState(500);
+export const Latex = ({ children, style, textColor = '#000000', minHeight = 500, maxHeight }: LatexProps) => {
+  const [height, setHeight] = useState(minHeight);
 
   const processedContent = children;
+  const isScrollable = !!maxHeight && height > maxHeight;
+  const displayHeight = isScrollable ? maxHeight : height;
 
   return (
-    <View style={[style, { height, minHeight: 500 }]}>
+    <View style={[style, { height: displayHeight, minHeight }]}>
       <WebView
         originWhitelist={['*']}
         source={{ html: MathJaxHTML(processedContent, textColor) }}
         style={{ backgroundColor: 'transparent' }}
-        scrollEnabled={true}
+        scrollEnabled={isScrollable}
+        nestedScrollEnabled={isScrollable}
         onMessage={(event) => {
           const newHeight = Number(event.nativeEvent.data);
           if (!isNaN(newHeight) && newHeight > 0) {
             setHeight(newHeight);
           }
         }}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={isScrollable}
       />
     </View>
   );
