@@ -5,6 +5,7 @@ export const apiEndpoints = {
   signin: "/token",
 
   getUserInfor: "/users/me",
+  changeLanguyege: "/users/me/language",
 
   getAllQuizzes: "/quizzes", // lấy tất cả các quizzes
   genQuiz: "/quizzes/generate", // tạo một quiz từ document
