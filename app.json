@@ -40,7 +40,8 @@
         "@sentry/react-native/expo",
         {
           "organization": "testing-oo",
-          "project": "react-native-m6"
+          "project": "react-native-m6",
+          "url": ""
         }
       ]
     ],
