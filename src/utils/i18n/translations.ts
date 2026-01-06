@@ -26,6 +26,7 @@ export const translations = {
         logout: "Logout",
         confirm_logout: "Are you sure you want to logout?",
         cancel: "Cancel",
+        select: "Select",
 
         settings_title: "Settings",
         language: "Language",
@@ -133,6 +134,7 @@ export const translations = {
         logout: "Đăng xuất",
         confirm_logout: "Bạn có chắc chắn muốn đăng xuất?",
         cancel: "Hủy",
+        select: "Chọn",
 
         settings_title: "Cài đặt",
         language: "Ngôn ngữ",

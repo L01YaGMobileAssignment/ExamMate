@@ -22,6 +22,7 @@ import { DocumentsStackParamList } from "../navigation/DocumentStackNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useDocStore } from "../store/docStore";
 import { normTime } from "../utils/normTime";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 type Props = NativeStackScreenProps<DocumentsStackParamList, "Documents">;
 export default function DocumentsScreen({ navigation }: Props) {
@@ -35,7 +36,7 @@ export default function DocumentsScreen({ navigation }: Props) {
   const [onLoading, setOnLoading] = useState(false);
   const [onRefresh, setOnRefresh] = useState(false);
   const [onLoadMore, setOnLoadMore] = useState(false);
-
+  const { t } = useTranslation();
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const handleSearch = (title_key: string) => {
@@ -108,7 +109,7 @@ export default function DocumentsScreen({ navigation }: Props) {
             <Text style={styles.docUploadTime}>{normTime(document.created_at)}</Text>
           </View>
           <TouchableOpacity style={styles.docButton} onPress={() => handleDetail(document)}>
-            <Text style={styles.docButtonText}>Detail</Text>
+            <Text style={styles.docButtonText}>{t.select}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -163,7 +164,7 @@ export default function DocumentsScreen({ navigation }: Props) {
         </View>
       ) : (
         <View style={styles.noDocumentContainer}>
-          <Text style={styles.noDocument}>No document</Text>
+          <Text style={styles.noDocument}>No document found, upload your documents to create quizzes</Text>
         </View>
       )}
     </SafeAreaView>
@@ -199,11 +200,16 @@ const styles = StyleSheet.create({
   },
   noDocumentContainer: {
     flex: 1,
+    padding: 8,
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
   },
   noDocument: {
     fontSize: 16,
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
     color: colors.textSecondary,
   },
   title: {
