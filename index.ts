@@ -3,23 +3,20 @@ import { registerRootComponent } from "expo";
 
 import App from "./src/App";
 
-// Check if we're in production mode (either via env variable or native build)
-const isProduction = process.env.EXPO_PUBLIC_ENV === "production" || !__DEV__;
-
 // Initialize Sentry at the earliest point in your app
 Sentry.init({
     dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
 
-    // Performance Monitoring - 20% sample rate for production
-    tracesSampleRate: isProduction ? 0.2 : 1.0,
-    profilesSampleRate: isProduction ? 0.2 : 1.0,
+    // Performance Monitoring - lower sample rate in production
+    tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+    profilesSampleRate: __DEV__ ? 1.0 : 0.2,
 
     // Enable automatic session tracking
     enableAutoSessionTracking: true,
     sessionTrackingIntervalMillis: 30000,
 
-    // Enable based on environment
-    enabled: isProduction,
+    // Enable Sentry if DSN is provided
+    enabled: !!process.env.EXPO_PUBLIC_SENTRY_DSN,
 
     // Native performance tracking
     enableNativeFramesTracking: true,
@@ -27,11 +24,11 @@ Sentry.init({
     enableAppStartTracking: true,
     enableUserInteractionTracing: true,
 
-    // Environment from env variable or fallback to __DEV__
-    environment: process.env.EXPO_PUBLIC_ENV || (__DEV__ ? "development" : "production"),
+    // Environment based on __DEV__
+    environment: __DEV__ ? "development" : "production",
 
-    // Debug mode only when not in production
-    debug: !isProduction,
+    // Debug mode for development
+    debug: __DEV__,
 });
 
 registerRootComponent(Sentry.wrap(App));
