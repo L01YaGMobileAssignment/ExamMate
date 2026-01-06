@@ -2,6 +2,7 @@ import axios from "./api";
 import { apiEndpoints } from "./endpoints";
 import { DocumentType } from "../types/document";
 import { AxiosResponse } from "axios";
+import * as Sentry from "@sentry/react-native";
 
 export const getDocuments = async (
   page: number = 1,
@@ -47,40 +48,61 @@ import { getToken } from "../store/secureStore";
 import { useDocStore } from "../store/docStore";
 
 export const uploadDocument = async (data: any) => {
-  const token = await getToken();
-  const baseUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001";
-  const url = `${baseUrl}${apiEndpoints.uploadDocument}`;
+  return Sentry.startSpan(
+    {
+      name: "uploadDocument API",
+      op: "http.client",
+    },
+    async (span) => {
+      try {
+        const token = await getToken();
+        const baseUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001";
+        const url = `${baseUrl}${apiEndpoints.uploadDocument}`;
 
-  const headers: any = {
-    // "ngrok-skip-browser-warning": "true",
-    "Accept": "application/json",
-  };
+        const headers: any = {
+          "Accept": "application/json",
+        };
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: headers,
-    body: data,
-  });
+        const response = await fetch(url, {
+          method: "POST",
+          headers: headers,
+          body: data,
+        });
 
-  const responseData = await response.json();
+        const responseData = await response.json();
 
-  if (!response.ok) {
-    const error: any = new Error(responseData.message || "Upload failed");
-    error.response = {
-      status: response.status,
-      data: responseData,
-    };
-    throw error;
-  }
+        if (!response.ok) {
+          const error: any = new Error(responseData.message || "Upload failed");
+          error.response = {
+            status: response.status,
+            data: responseData,
+          };
+          span.setStatus({ code: 2, message: "error" });
+          Sentry.captureException(error, {
+            tags: { api: "uploadDocument", status: response.status.toString() },
+            extra: { responseData },
+          });
+          throw error;
+        }
 
-  return {
-    status: response.status,
-    data: responseData,
-  };
+        span.setStatus({ code: 1, message: "ok" });
+        return {
+          status: response.status,
+          data: responseData,
+        };
+      } catch (error) {
+        span.setStatus({ code: 2, message: "error" });
+        Sentry.captureException(error, {
+          tags: { api: "uploadDocument" },
+        });
+        throw error;
+      }
+    }
+  );
 };
 
 export const getDocumentSummary = async (id: string) => {
