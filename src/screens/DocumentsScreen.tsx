@@ -200,11 +200,16 @@ const styles = StyleSheet.create({
   },
   noDocumentContainer: {
     flex: 1,
+    padding: 8,
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
   },
   noDocument: {
     fontSize: 16,
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
     color: colors.textSecondary,
   },
   title: {
