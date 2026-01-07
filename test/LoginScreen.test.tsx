@@ -61,13 +61,13 @@ describe('LoginScreen', () => {
         const { getAllByText, getByPlaceholderText } = render(<LoginScreen navigation={mockNavigation as any} route={{} as any} />);
 
         fireEvent.changeText(getByPlaceholderText('Enter your username'), 'testuser');
-        fireEvent.changeText(getByPlaceholderText('Enter your password'), 'wrongpass');
+        fireEvent.changeText(getByPlaceholderText('Enter your password'), '123');
 
         const signInButtons = getAllByText('Sign In');
         fireEvent.press(signInButtons[signInButtons.length - 1]);
 
         await waitFor(() => {
-            expect(SignInService).toHaveBeenCalledWith({ username: 'testuser', password: 'wrongpass' });
+            expect(SignInService).toHaveBeenCalledWith({ username: 'testuser', password: '123' });
             expect(Alert.alert).toHaveBeenCalledWith('Error', 'Invalid credentials');
         });
     });
