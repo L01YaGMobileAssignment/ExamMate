@@ -3,6 +3,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import RegisterScreen from '../src/screens/RegisterScreen';
 import { SignUpService } from '../src/services/authService';
 import { Alert } from 'react-native';
+import { MOCK_USER } from './testConstants';
 
 // Mock services
 jest.mock('../src/services/authService', () => ({
@@ -46,10 +47,10 @@ describe('RegisterScreen', () => {
 
         const { getByText, getByPlaceholderText, getAllByText } = render(<RegisterScreen navigation={mockNavigation as any} route={{} as any} />);
 
-        fireEvent.changeText(getByPlaceholderText('Enter your username'), 'newuser');
-        fireEvent.changeText(getByPlaceholderText('name@email.com'), 'test@example.com');
-        fireEvent.changeText(getByPlaceholderText('Create a password'), 'password123');
-        fireEvent.changeText(getByPlaceholderText('Confirm password'), 'password123');
+        fireEvent.changeText(getByPlaceholderText('Enter your username'), MOCK_USER.newUsername);
+        fireEvent.changeText(getByPlaceholderText('name@email.com'), MOCK_USER.email);
+        fireEvent.changeText(getByPlaceholderText('Create a password'), MOCK_USER.password);
+        fireEvent.changeText(getByPlaceholderText('Confirm password'), MOCK_USER.password);
 
         // Toggle checkbox
         const checkbox = getByText("Terms and Conditions");
@@ -61,9 +62,9 @@ describe('RegisterScreen', () => {
 
         await waitFor(() => {
             expect(SignUpService).toHaveBeenCalledWith({
-                username: 'newuser',
-                email: 'test@example.com',
-                password: 'password123',
+                username: MOCK_USER.newUsername,
+                email: MOCK_USER.email,
+                password: MOCK_USER.password,
             });
             expect(Alert.alert).toHaveBeenCalledWith("Success", expect.any(String), expect.any(Array));
         });
