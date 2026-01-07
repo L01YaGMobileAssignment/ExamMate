@@ -11,6 +11,8 @@ import DocumentsDetailScreen from "../screens/DocumentDetailScreen";
 import SettingScreen from "../screens/SettingScreen";
 import { DocumentType } from "../types/document";
 import { getIsFirstUse } from "../store/secureStore";
+import * as Sentry from "@sentry/react-native";
+
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -22,6 +24,11 @@ export type RootStackParamList = {
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+// Create Sentry navigation integration
+const routingInstrumentation = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: true,
+});
 
 export default function AppNavigator() {
   const [initialRoute, setInitialRoute] = React.useState<keyof RootStackParamList | null>(null);
@@ -39,7 +46,12 @@ export default function AppNavigator() {
   }
 
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        routingInstrumentation.registerNavigationContainer(navigationRef);
+      }}
+    >
       <Stack.Navigator initialRouteName={initialRoute}>
         <Stack.Screen
           name="OnBoarding"

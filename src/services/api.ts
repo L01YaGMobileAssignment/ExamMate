@@ -1,6 +1,8 @@
 import axios from "axios";
 import { clearAuth, getToken } from "../store/secureStore";
 import { resetAndNavigate } from "../navigation/navigationRef";
+import * as Sentry from "@sentry/react-native";
+
 export const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3001",
   timeout: 180000,
@@ -38,6 +40,19 @@ api.interceptors.response.use(
   response => response,
   error => {
     const handleError = async () => {
+      // Capture API errors in Sentry
+      Sentry.captureException(error, {
+        tags: {
+          api: "axios_interceptor",
+          status: error.response?.status?.toString() || "network_error",
+        },
+        extra: {
+          url: error.config?.url,
+          method: error.config?.method,
+          statusText: error.response?.statusText,
+        },
+      });
+
       if (error.response?.status === 401) {
         await clearAuth();
         resetAndNavigate("Login");

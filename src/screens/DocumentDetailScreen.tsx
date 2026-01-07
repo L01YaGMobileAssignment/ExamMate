@@ -22,6 +22,7 @@ import * as Sharing from 'expo-sharing';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { DocumentsStackParamList } from "../navigation/DocumentStackNavigator";
 import { generateQuiz } from "../services/quizzesService";
+import * as Sentry from "@sentry/react-native";
 
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useQuizStore } from "../store/quizStore";
@@ -60,10 +61,20 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
   }
   const handleGenerateQuiz = async () => {
     setIsLoading(true);
+    Sentry.addBreadcrumb({
+      category: "user_action",
+      message: `User initiated quiz generation for document: ${document.title}`,
+      level: "info",
+    });
     try {
       const res = await generateQuiz(document.id, numberOfQuestions);
       if (res.status === 200) {
         useQuizStore.getState().addQuiz(res.data);
+        Sentry.addBreadcrumb({
+          category: "success",
+          message: `Quiz generated successfully with ${res.data.questions?.length || numberOfQuestions} questions`,
+          level: "info",
+        });
         // @ts-ignore
         navigation.navigate("Main", {
           screen: "HomeTab",
@@ -75,6 +86,10 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
       }
     } catch (error) {
       console.error("Quiz generation failed:", error);
+      Sentry.captureException(error, {
+        tags: { action: "handleGenerateQuiz", screen: "DocumentDetailScreen" },
+        extra: { documentId: document.id, documentTitle: document.title, numberOfQuestions },
+      });
       Alert.alert(t.error, "Failed to generate quiz. Please try again later.");
     } finally {
       setIsLoading(false);

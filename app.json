@@ -35,6 +35,14 @@
         {
           "username": "tnbao2004"
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "testing-oo",
+          "project": "react-native-m6",
+          "url": ""
+        }
       ]
     ],
     "extra": {

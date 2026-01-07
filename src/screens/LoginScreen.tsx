@@ -191,4 +191,16 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: "600",
   },
+  sentryTestButton: {
+    backgroundColor: "#ff4444",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  sentryTestButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
 });
