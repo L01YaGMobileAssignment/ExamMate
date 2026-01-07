@@ -10,9 +10,27 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
 
+    outputs:
+      should_build: ${{ steps.filter.outputs.build }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Check changed files
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            build:
+              - 'src/**'
+              - 'app/**'
+              - 'assets/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'app.json'
+              - 'eas.json'
+              - 'expo/**'
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -29,6 +47,7 @@ jobs:
   build:
     name: Build with EAS
     needs: test
+    if: needs.test.outputs.should_build == 'true'
     runs-on: ubuntu-latest
 
     steps:
