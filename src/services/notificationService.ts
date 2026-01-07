@@ -64,7 +64,7 @@ export async function scheduleEventNotification(title: string, startTimestamp: n
         }
 
     } catch (error) {
-        console.log("Error scheduling notification:", error);
+        console.log("Error scheduling notification:");
     }
 }
 
@@ -78,6 +78,6 @@ export async function sendCreationNotification(title: string) {
             trigger: null,
         });
     } catch (error) {
-        console.log("Error sending creation notification:", error);
+        console.log("Error sending creation notification:");
     }
 }

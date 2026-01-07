@@ -21,7 +21,7 @@ export default function App() {
           await Updates.reloadAsync();
         }
       } catch (error) {
-        console.log(`Error fetching update: ${error}`);
+        console.log(`Error fetching update: `);
       }
     }
 
@@ -49,7 +49,7 @@ export default function App() {
           );
         }
       } catch (error) {
-        console.error("Failed to check notification permissions:", error);
+        console.error("Failed to check notification permissions:");
       }
     };
 

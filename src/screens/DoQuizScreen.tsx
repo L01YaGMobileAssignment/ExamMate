@@ -32,7 +32,6 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
             const res = await getQuizById(quiz?.quizz_id);
             if (res.status === 200) {
                 const data = res.data;
-                console.log(data);
                 setQuiz_(data);
                 useQuizStore.getState().updateQuiz(data.quiz_id, data.questions);
             }

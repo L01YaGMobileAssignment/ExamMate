@@ -44,7 +44,7 @@ export const translations = {
         invalid_input: "Invalid input",
         error_num_questions: "Number of questions must be between 5 and 30",
         error_notify_time: "Please enter a valid notification time",
-
+        loginFail: "Login failed",
         upload_document: "Upload Document",
         select_file: "Select File",
         take_photo: "Take Photo",
@@ -228,6 +228,7 @@ export const translations = {
         error: "Lỗi",
         english: "English",
         vietnamese: "Tiếng Việt",
+        loginFail: "Đăng nhập thất bại",
 
         edit_profile: "Chỉnh sửa thông tin",
         history: "Lịch sử",

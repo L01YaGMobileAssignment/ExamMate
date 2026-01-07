@@ -28,7 +28,7 @@ export const useSettingStore = create<SettingState>((set, get) => ({
             const settings = currentSettings ? JSON.parse(currentSettings) : {};
             await SecureStore.setItemAsync(SETTINGS_KEY, JSON.stringify({ ...settings, numberOfQuestions: num }));
         } catch (error) {
-            console.error('Failed to save settings:', error);
+            console.error('Failed to save settings:');
         }
     },
     setNotifyTime: async (minutes: number) => {
@@ -38,7 +38,7 @@ export const useSettingStore = create<SettingState>((set, get) => ({
             const settings = currentSettings ? JSON.parse(currentSettings) : {};
             await SecureStore.setItemAsync(SETTINGS_KEY, JSON.stringify({ ...settings, notifyTime: minutes }));
         } catch (error) {
-            console.error('Failed to save settings:', error);
+            console.error('Failed to save settings:');
         }
     },
     setLanguage: async (lang: string) => {
@@ -53,7 +53,7 @@ export const useSettingStore = create<SettingState>((set, get) => ({
             queryClient.invalidateQueries({ queryKey: ['quizzes'] });
             queryClient.invalidateQueries({ queryKey: ['schedule'] });
         } catch (error) {
-            console.error('Failed to save settings:', error);
+            console.error('Failed to save settings:');
         }
     },
     loadSettings: async () => {
@@ -73,7 +73,7 @@ export const useSettingStore = create<SettingState>((set, get) => ({
                 }
             }
         } catch (error) {
-            console.error('Failed to load settings:', error);
+            console.error('Failed to load settings:');
         } finally {
             set({ isLoading: false });
         }
