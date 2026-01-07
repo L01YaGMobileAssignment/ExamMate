@@ -47,7 +47,10 @@ export const getDocumentsByTitleKey = async (
 import { getToken } from "../store/secureStore";
 import { useDocStore } from "../store/docStore";
 
-export const uploadDocument = async (data: any) => {
+export const uploadDocument = async (
+  data: any,
+  onProgress?: (progress: number) => void
+) => {
   return Sentry.startSpan(
     {
       name: "uploadDocument API",
@@ -94,7 +97,7 @@ export const uploadDocument = async (data: any) => {
           status: response.status,
           data: responseData,
         };
-      } catch (error) {
+      } catch (error: any) {
         span.setStatus({ code: 2, message: "error" });
         Sentry.captureException(error, {
           tags: { api: "uploadDocument" },

@@ -19,6 +19,7 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { saveIsFirstUse } from "../store/secureStore";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 const { width } = Dimensions.get("window");
 const COLORS = {
@@ -34,51 +35,7 @@ const COLORS = {
 const heroImageSource = require("../../assets/Figma/OnBoarding.png");
 const logoSource = require("../../assets/Figma/Logo.png");
 
-const showcaseImages = [
-  {
-    id: 1,
-    src: require("../../assets/Figma/UploadPage.png"),
-    caption: "Upload tài liệu",
-  },
-  {
-    id: 2,
-    src: require("../../assets/Figma/QuizPage.png"),
-    caption: "Ôn tập chủ động",
-  },
-  {
-    id: 3,
-    src: require("../../assets/Figma/SumaryPage.png"),
-    caption: "Tóm tắt và tạo câu hỏi bằng AI",
-  },
-  {
-    id: 4,
-    src: require("../../assets/Figma/Schedule.png"),
-    caption: "Lịch học",
-  },
-];
 
-const mvpFeatures = [
-  {
-    icon: "cloud-upload-outline",
-    title: "Kho tài liệu cá nhân",
-    description: "Lưu trữ tài liệu để sẵn sàng ôn tập.",
-  },
-  {
-    icon: "sync-outline",
-    title: "Đồng bộ thông tin",
-    description: "Dữ liệu học tập luôn sẵn sàng trên mọi thiết bị.",
-  },
-  {
-    icon: "alarm-outline",
-    title: "Nhắc nhở thông minh",
-    description: "Xây dựng thói quen ôn bài hàng ngày bền vững.",
-  },
-  {
-    icon: "share-social-outline",
-    title: "Chia sẻ kiến thức",
-    description: "Lưu và chia sẻ các bộ câu hỏi với bạn bè.",
-  },
-];
 
 const EXTERNAL_LINKS = {
   behance: "https://www.behance.net/gallery/240281337/ExamMate",
@@ -89,6 +46,53 @@ const EXTERNAL_LINKS = {
 type Props = NativeStackScreenProps<RootStackParamList, "Landing">;
 
 export default function LandingScreen({ navigation }: Props) {
+  const { t } = useTranslation();
+
+  const showcaseImages = [
+    {
+      id: 1,
+      src: require("../../assets/Figma/UploadPage.png"),
+      caption: t.landing_showcase_1,
+    },
+    {
+      id: 2,
+      src: require("../../assets/Figma/QuizPage.png"),
+      caption: t.landing_showcase_2,
+    },
+    {
+      id: 3,
+      src: require("../../assets/Figma/SumaryPage.png"),
+      caption: t.landing_showcase_3,
+    },
+    {
+      id: 4,
+      src: require("../../assets/Figma/Schedule.png"),
+      caption: t.landing_showcase_4,
+    },
+  ];
+
+  const mvpFeatures = [
+    {
+      icon: "cloud-upload-outline",
+      title: t.landing_feature_1_title,
+      description: t.landing_feature_1_desc,
+    },
+    {
+      icon: "sync-outline",
+      title: t.landing_feature_2_title,
+      description: t.landing_feature_2_desc,
+    },
+    {
+      icon: "alarm-outline",
+      title: t.landing_feature_3_title,
+      description: t.landing_feature_3_desc,
+    },
+    {
+      icon: "share-social-outline",
+      title: t.landing_feature_4_title,
+      description: t.landing_feature_4_desc,
+    },
+  ];
   const openLink = (url: string) => {
     Linking.canOpenURL(url).then(supported => {
       if (supported) {
@@ -113,16 +117,15 @@ export default function LandingScreen({ navigation }: Props) {
               Exam<Text style={styles.logoHighlight}>Mate</Text>
             </Text>
           </View>
-          <Text style={styles.sloganText}>More than a study partner</Text>
+          <Text style={styles.sloganText}>{t.landing_slogan}</Text>
         </View>
 
         <View style={styles.heroSection}>
           <Text style={styles.heroHeadline}>
-            Chinh phục kỳ thi với người bạn đồng hành thông minh.
+            {t.landing_headline}
           </Text>
           <Text style={styles.heroSubline}>
-            Công cụ giúp sinh viên tổ chức việc ôn thi, tạo bài luyện tập và
-            nhắc nhở tiến độ hiệu quả.
+            {t.landing_subline}
           </Text>
 
           <TouchableOpacity
@@ -133,7 +136,7 @@ export default function LandingScreen({ navigation }: Props) {
             }}
             activeOpacity={0.8}
           >
-            <Text style={styles.primaryBtnText}>Tham gia trải nghiệm ngay</Text>
+            <Text style={styles.primaryBtnText}>{t.landing_join_now}</Text>
             <Ionicons
               name="arrow-forward"
               size={20}
@@ -142,13 +145,13 @@ export default function LandingScreen({ navigation }: Props) {
             />
           </TouchableOpacity>
 
-          <View style={styles.heroImageContainer}>
+          {/* <View style={styles.heroImageContainer}>
             <Image
               source={heroImageSource}
               style={styles.heroImageDisplay}
               resizeMode="contain"
             />
-          </View>
+          </View> */}
         </View>
 
         <View style={styles.problemSection}>
@@ -159,18 +162,16 @@ export default function LandingScreen({ navigation }: Props) {
             style={{ marginBottom: 10 }}
           />
           <Text style={styles.sectionTitle}>
-            Việc ôn thi không cần phải là gánh nặng
+            {t.landing_problem_title}
           </Text>
           <Text style={styles.sectionBodyText}>
-            Bạn bị choáng ngợp bởi có quá nhiều tài liệu? Bạn muốn nắm được nội
-            dung của tài liệu một cách nhanh chóng? ExamMate giúp chuyển đổi tài
-            liệu thành các phiên ôn tập thú vị, nắm bắt kiến thức nhanh chóng.
+            {t.landing_problem_desc}
           </Text>
         </View>
 
         <View style={styles.featuresSection}>
           <Text style={[styles.sectionTitle, { marginBottom: 30 }]}>
-            Xây dựng nền tảng vững chắc
+            {t.landing_feature_title}
           </Text>
           <View style={styles.featureGrid}>
             {mvpFeatures.map((item, index) => (
@@ -196,7 +197,7 @@ export default function LandingScreen({ navigation }: Props) {
               { textAlign: "left", paddingHorizontal: 20 },
             ]}
           >
-            Trải nghiệm học tập trực quan
+            {t.landing_showcase_title}
           </Text>
           <Text
             style={[
@@ -204,7 +205,7 @@ export default function LandingScreen({ navigation }: Props) {
               { textAlign: "left", paddingHorizontal: 20, marginBottom: 20 },
             ]}
           >
-            Giao diện tối giản, tập trung tối đa vào nội dung.
+            {t.landing_showcase_desc}
           </Text>
 
           <ScrollView
@@ -226,7 +227,7 @@ export default function LandingScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.footerSection}>
-          <Text style={styles.footerHeading}>Khám phá quy trình thiết kế</Text>
+          <Text style={styles.footerHeading}>{t.landing_design_process}</Text>
 
           <View style={styles.linkButtonsContainer}>
             <TouchableOpacity
@@ -239,7 +240,7 @@ export default function LandingScreen({ navigation }: Props) {
                 color="#fff"
                 style={{ marginRight: 10 }}
               />
-              <Text style={styles.designLinkText}>Xem trên Behance</Text>
+              <Text style={styles.designLinkText}>{t.landing_view_behance}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -259,7 +260,7 @@ export default function LandingScreen({ navigation }: Props) {
                 color="#fff"
                 style={{ marginRight: 10 }}
               />
-              <Text style={styles.designLinkText}>Xem Design System</Text>
+              <Text style={styles.designLinkText}>{t.landing_view_design_system}</Text>
             </TouchableOpacity>
           </View>
 
@@ -279,7 +280,7 @@ export default function LandingScreen({ navigation }: Props) {
             navigation.navigate("Login");
           }}
         >
-          <Text style={styles.stickyBtnText}>Bắt đầu học ngay</Text>
+          <Text style={styles.stickyBtnText}>{t.landing_start_learning}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

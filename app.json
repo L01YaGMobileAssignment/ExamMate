@@ -40,10 +40,10 @@
         "@sentry/react-native/expo",
         {
           "organization": "testing-oo",
-          "project": "react-native-m6",
-          "url": ""
+          "project": "react-native-m6"
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "extra": {
       "eas": {

@@ -36,6 +36,8 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
   const [document, setDocument] = useState<DocumentType>(route.params.document);
   const [isLoading, setIsLoading] = useState(false);
   const numberOfQuestions = useSettingStore(state => state.numberOfQuestions);
+  const addGeneratingQuiz = useQuizStore(state => state.addGeneratingQuiz);
+  const removeGeneratingQuiz = useQuizStore(state => state.removeGeneratingQuiz);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +68,7 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
       message: `User initiated quiz generation for document: ${document.title}`,
       level: "info",
     });
+    addGeneratingQuiz({ documentId: document.id, documentTitle: document.title || "" });
     try {
       const res = await generateQuiz(document.id, numberOfQuestions);
       if (res.status === 200) {
@@ -92,6 +95,7 @@ export default function DocumentsDetailScreen({ route, navigation }: Props) {
       });
       Alert.alert(t.error, "Failed to generate quiz. Please try again later.");
     } finally {
+      removeGeneratingQuiz(document.id);
       setIsLoading(false);
     }
   };

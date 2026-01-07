@@ -115,33 +115,31 @@ export default function DocumentsScreen({ navigation }: Props) {
       </View>
     );
   };
-  if (onLoading) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <View style={styles.headerLeft}></View>
         <View>
-          <Text style={styles.title}>Documents</Text>
+          <Text style={styles.title}>{t.tab_documents}</Text>
         </View>
         <TouchableOpacity style={styles.headerRight} onPress={() => navigation.navigate("DocumentUploadScreen")}>
           <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
-          <Text style={styles.headerRightText}>New</Text>
+          <Text style={styles.headerRightText}>{t.new}</Text>
         </TouchableOpacity>
       </View>
       <InputText
-        placeholder="Enter your document title"
+        placeholder={t.search_docs_placeholder}
         iconLeft="search-outline"
         style={styles.searchDoc}
         borderRadius={30}
         onChangeText={(title_key: string) => handleSearch(title_key)}
       ></InputText>
-      {listDocument?.length > 0 ? (
+      {onLoading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      ) : listDocument?.length > 0 ? (
         <View>
           <FlatList
             data={listDocument}
@@ -164,7 +162,7 @@ export default function DocumentsScreen({ navigation }: Props) {
         </View>
       ) : (
         <View style={styles.noDocumentContainer}>
-          <Text style={styles.noDocument}>No document found, upload your documents to create quizzes</Text>
+          <Text style={styles.noDocument}>{t.no_docs_init}</Text>
         </View>
       )}
     </SafeAreaView>

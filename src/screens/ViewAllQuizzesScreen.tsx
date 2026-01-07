@@ -18,9 +18,11 @@ import { getQuizByTitle, getQuizzes } from "../services/quizzesService";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { useQuizStore } from "../store/quizStore";
 import { normTime } from "../utils/normTime";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "ViewAllQuizzes">;
 export default function ViewAllQuizzesScreen({ navigation }: Props) {
+    const { t } = useTranslation();
     const [listQuizzes, setListQuizzes] = useState<QuizzesType[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPage, setTotalPage] = useState(0);
@@ -102,7 +104,7 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
                         <Text style={styles.docUploadTime}>{normTime(quiz.created_at)}</Text>
                     </View>
                     <TouchableOpacity style={styles.docButton} onPress={() => handleDetail(quiz)}>
-                        <Text style={styles.docButtonText}>Detail</Text>
+                        <Text style={styles.docButtonText}>{t.detail}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -120,24 +122,24 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
             <View style={styles.header}>
                 <View style={styles.headerLeft}></View>
                 <View>
-                    <Text style={styles.title}>My Quizzes</Text>
+                    <Text style={styles.title}>{t.my_quizzes}</Text>
                 </View>
                 {/* @ts-ignore */}
                 <TouchableOpacity style={styles.headerRight} onPress={() => navigation.navigate("DocumentsTab", {
                     screen: "Documents"
                 })}>
                     <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
-                    <Text style={styles.headerRightText}>New</Text>
+                    <Text style={styles.headerRightText}>{t.new}</Text>
                 </TouchableOpacity>
             </View>
             <InputText
-                placeholder="Enter your quiz title"
+                placeholder={t.search_quiz_placeholder}
                 iconLeft="search-outline"
                 style={styles.searchDoc}
                 borderRadius={30}
                 onChangeText={(title_key: string) => handleSearch(title_key)}
             ></InputText>
-            {listQuizzes ? (
+            {listQuizzes && listQuizzes.length > 0 ? (
                 <View>
                     <FlatList
                         data={listQuizzes}
@@ -160,7 +162,7 @@ export default function ViewAllQuizzesScreen({ navigation }: Props) {
                 </View>
             ) : (
                 <View style={styles.noDocumentContainer}>
-                    <Text style={styles.noDocument}>No Quizzes found</Text>
+                    <Text style={styles.noDocument}>{t.no_quizzes_found}</Text>
                 </View>
             )}
         </SafeAreaView>
