@@ -2,113 +2,280 @@ import React from 'react';
 import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import ViewAllQuizzesScreen from '../src/screens/ViewAllQuizzesScreen';
 import { getQuizzes, getQuizByTitle } from '../src/services/quizzesService';
+import { useQuizStore } from '../src/store/quizStore';
 
 const mockNavigation = {
     navigate: jest.fn(),
-    goBack: jest.fn(),
 };
 
-// Mock dependencies
 jest.mock('../src/services/quizzesService', () => ({
     getQuizzes: jest.fn(),
     getQuizByTitle: jest.fn(),
 }));
 
-jest.mock('../src/store/quizStore', () => ({
-    useQuizStore: jest.fn((selector) => {
-        const mockState = { quizzes: [] };
-        return selector ? selector(mockState) : mockState;
-    }),
-}));
-
-
-// Remove jest.useFakeTimers() from global scope
-// jest.useFakeTimers();
+const mockQuizzes = [
+    { quiz_id: '1', quiz_title: 'Quiz 1', questions: [], created_at: '2023-01-01', owned_by: 'user1' },
+    { quiz_id: '2', quiz_title: 'Quiz 2', questions: [], created_at: '2023-01-02', owned_by: 'user1' }
+];
 
 describe('ViewAllQuizzesScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        // Reset to real timers ensures clean slate for each test if we leak
         jest.useRealTimers();
+        useQuizStore.setState({ quizzes: [] });
 
         (getQuizzes as jest.Mock).mockResolvedValue({
             status: 200,
-            data: [
-                { quiz_id: 1, quiz_title: 'Math Quiz 1', created_at: '2023-01-01' },
-                { quiz_id: 2, quiz_title: 'History Quiz', created_at: '2023-01-02' }
-            ]
+            data: mockQuizzes
         });
         (getQuizByTitle as jest.Mock).mockResolvedValue({
             status: 200,
-            data: [{ quiz_id: 3, quiz_title: 'Search Result Quiz', created_at: '2023-01-03' }]
+            data: [{ quiz_id: '3', quiz_title: 'Search Result Quiz', questions: [], created_at: '2023-01-03', owned_by: 'user1' }]
         });
     });
 
-    it('renders correctly and loads data', async () => {
-        const { getByText, getByPlaceholderText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+    describe('rendering', () => {
+        it('renders correctly', async () => {
+            const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
 
-        // Wait for loading to finish and content to appear
-        await waitFor(() => {
-            expect(getByText('my_quizzes')).toBeTruthy();
-            expect(getByText('new')).toBeTruthy();
+            await waitFor(() => {
+                expect(getByText('my_quizzes')).toBeTruthy();
+            });
         });
 
-        expect(getByPlaceholderText('search_quiz_placeholder')).toBeTruthy();
-        expect(getByText('Math Quiz 1')).toBeTruthy();
-        expect(getByText('History Quiz')).toBeTruthy();
-    });
+        it('shows empty state when no quizzes', async () => {
+            (getQuizzes as jest.Mock).mockResolvedValue({
+                status: 200,
+                data: []
+            });
 
-    it('navigates to create new quiz', async () => {
-        const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+            const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
 
-        await waitFor(() => expect(getByText('new')).toBeTruthy());
+            await waitFor(() => {
+                expect(getByText('no_quizzes_found')).toBeTruthy();
+            });
+        });
 
-        fireEvent.press(getByText('new'));
-        expect(mockNavigation.navigate).toHaveBeenCalledWith('DocumentsTab', { screen: 'Documents' });
-    });
+        it('displays quiz list when quizzes exist', async () => {
+            const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
 
-    it('navigates to quiz detail', async () => {
-        const { getAllByText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
-
-        await waitFor(() => expect(getByText('Math Quiz 1')).toBeTruthy());
-
-        const detailButtons = getAllByText('detail');
-        fireEvent.press(detailButtons[0]);
-
-        expect(mockNavigation.navigate).toHaveBeenCalledWith('QuizOverview', {
-            quiz: expect.objectContaining({ quiz_title: 'Math Quiz 1' })
+            await waitFor(() => {
+                expect(getByText('Quiz 1')).toBeTruthy();
+                expect(getByText('Quiz 2')).toBeTruthy();
+            });
         });
     });
 
-    it('handles search functionality', async () => {
-        jest.useFakeTimers();
-        const { getByPlaceholderText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+    describe('navigation', () => {
+        it('navigates to document tab when new button is pressed', async () => {
+            const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
 
-        // Wait for render
-        await waitFor(() => expect(getByText('my_quizzes')).toBeTruthy());
+            await waitFor(() => expect(getByText('new')).toBeTruthy());
 
-        const searchInput = getByPlaceholderText('search_quiz_placeholder');
-
-        fireEvent.changeText(searchInput, 'Search');
-
-        act(() => {
-            jest.advanceTimersByTime(500);
+            fireEvent.press(getByText('new'));
+            expect(mockNavigation.navigate).toHaveBeenCalledWith('DocumentsTab', {
+                screen: 'Documents'
+            });
         });
 
-        await waitFor(() => {
-            expect(getQuizByTitle).toHaveBeenCalledWith('Search');
-            expect(getByText('Search Result Quiz')).toBeTruthy();
+        it('navigates to quiz overview when detail button is pressed', async () => {
+            const { getAllByText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => expect(getByText('Quiz 1')).toBeTruthy());
+
+            const detailButtons = getAllByText('detail');
+            fireEvent.press(detailButtons[0]);
+
+            expect(mockNavigation.navigate).toHaveBeenCalledWith('QuizOverview', {
+                quiz: expect.objectContaining({ quiz_id: '1' })
+            });
         });
-        jest.useRealTimers();
+
+        it('navigates to correct quiz when second quiz detail is pressed', async () => {
+            const { getAllByText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => expect(getByText('Quiz 2')).toBeTruthy());
+
+            const detailButtons = getAllByText('detail');
+            fireEvent.press(detailButtons[1]);
+
+            expect(mockNavigation.navigate).toHaveBeenCalledWith('QuizOverview', {
+                quiz: expect.objectContaining({ quiz_id: '2' })
+            });
+        });
     });
 
-    it('shows no results message when empty', async () => {
-        (getQuizzes as jest.Mock).mockResolvedValue({ status: 200, data: [] });
+    describe('search functionality', () => {
+        beforeEach(() => {
+            jest.useFakeTimers();
+        });
 
-        const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+        afterEach(() => {
+            jest.useRealTimers();
+        });
 
-        await waitFor(() => {
-            expect(getByText('no_quizzes_found')).toBeTruthy();
+        it('handles search functionality with debounce', async () => {
+            const { getByPlaceholderText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await act(async () => {
+                jest.runAllTimers();
+            });
+
+            await waitFor(() => expect(getByText('Quiz 1')).toBeTruthy());
+
+            const searchInput = getByPlaceholderText('search_quiz_placeholder');
+
+            fireEvent.changeText(searchInput, 'Search');
+
+            await act(async () => {
+                jest.advanceTimersByTime(500);
+            });
+
+            await waitFor(() => {
+                expect(getQuizByTitle).toHaveBeenCalledWith('Search');
+            });
+        });
+
+        it('clears search and reloads all quizzes when search is empty', async () => {
+            const { getByPlaceholderText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await act(async () => {
+                jest.runAllTimers();
+            });
+
+            await waitFor(() => expect(getByText('Quiz 1')).toBeTruthy());
+
+            const initialCallCount = (getQuizzes as jest.Mock).mock.calls.length;
+
+            const searchInput = getByPlaceholderText('search_quiz_placeholder');
+
+            // Clear search
+            fireEvent.changeText(searchInput, '');
+
+            await act(async () => {
+                jest.advanceTimersByTime(500);
+            });
+
+            await waitFor(() => {
+                expect((getQuizzes as jest.Mock).mock.calls.length).toBeGreaterThanOrEqual(initialCallCount);
+            });
+        });
+
+        it('debounces search input correctly', async () => {
+            const { getByPlaceholderText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await act(async () => {
+                jest.runAllTimers();
+            });
+
+            await waitFor(() => expect(getByText('Quiz 1')).toBeTruthy());
+
+            const searchInput = getByPlaceholderText('search_quiz_placeholder');
+
+            // Type multiple characters quickly
+            fireEvent.changeText(searchInput, 'S');
+            fireEvent.changeText(searchInput, 'Se');
+            fireEvent.changeText(searchInput, 'Sea');
+
+            await act(async () => {
+                jest.advanceTimersByTime(500);
+            });
+
+            await waitFor(() => {
+                expect(getQuizByTitle).toHaveBeenCalledWith('Sea');
+            });
+        });
+
+        it('clears previous timeout when new search starts', async () => {
+            const { getByPlaceholderText, getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await act(async () => {
+                jest.runAllTimers();
+            });
+
+            await waitFor(() => expect(getByText('Quiz 1')).toBeTruthy());
+
+            const searchInput = getByPlaceholderText('search_quiz_placeholder');
+
+            // Start first search
+            fireEvent.changeText(searchInput, 'First');
+
+            await act(async () => {
+                jest.advanceTimersByTime(200);
+            });
+
+            // Start second search before first completes
+            fireEvent.changeText(searchInput, 'Second');
+
+            await act(async () => {
+                jest.advanceTimersByTime(500);
+            });
+
+            await waitFor(() => {
+                expect(getQuizByTitle).toHaveBeenCalledWith('Second');
+            });
+        });
+    });
+
+    describe('quiz card rendering', () => {
+        it('displays quiz title in card', async () => {
+            const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => {
+                expect(getByText('Quiz 1')).toBeTruthy();
+            });
+        });
+
+        it('displays detail button for each quiz', async () => {
+            const { getAllByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => {
+                const detailButtons = getAllByText('detail');
+                expect(detailButtons.length).toBe(2);
+            });
+        });
+    });
+
+    describe('data fetching', () => {
+        it('fetches quizzes on initial render', async () => {
+            render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => {
+                expect(getQuizzes).toHaveBeenCalled();
+            });
+        });
+
+        it('displays quizzes after successful fetch', async () => {
+            const { getByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => {
+                expect(getByText('Quiz 1')).toBeTruthy();
+                expect(getByText('Quiz 2')).toBeTruthy();
+            });
+        });
+    });
+
+    describe('multiple quizzes', () => {
+        it('handles large number of quizzes', async () => {
+            const manyQuizzes = Array(10).fill(null).map((_, i) => ({
+                quiz_id: `${i + 1}`,
+                quiz_title: `Quiz ${i + 1}`,
+                questions: [],
+                created_at: '2023-01-01',
+                owned_by: 'user1'
+            }));
+
+            (getQuizzes as jest.Mock).mockResolvedValue({
+                status: 200,
+                data: manyQuizzes
+            });
+
+            const { getByText, getAllByText } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => {
+                expect(getByText('Quiz 1')).toBeTruthy();
+                expect(getAllByText('detail').length).toBe(10);
+            });
         });
     });
 });

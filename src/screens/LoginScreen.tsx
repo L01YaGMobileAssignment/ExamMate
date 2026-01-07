@@ -22,6 +22,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { getUserInfor } from "../services/userServices";
 import { resetAndNavigate } from "../navigation/navigationRef";
 import { norm_colors as colors } from "../template/color";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 const logo = require("../../assets/Figma/Logo_Text.png");
@@ -32,6 +33,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { t } = useTranslation();
   useEffect(() => {
     const fetchData = async () => {
       const user = await getUser();
@@ -57,7 +59,7 @@ export default function LoginScreen({ navigation }: Props) {
         navigation.navigate("Main");
       }
     } catch (error: any) {
-      Alert.alert("Error", error?.message);
+      Alert.alert("Error", t.loginFail);
     } finally {
       setIsLoading(false);
     }

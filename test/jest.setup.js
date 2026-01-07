@@ -208,5 +208,13 @@ jest.mock('@react-native-community/datetimepicker', () => {
     return DateTimePicker;
 });
 
-
-
+// Mock Latex component to just render text
+jest.mock('../src/components/Latex', () => {
+    const React = require('react');
+    const { Text } = require('react-native');
+    return {
+        Latex: ({ children, ...props }) => {
+            return React.createElement(Text, { ...props, testID: 'latex-text' }, children);
+        },
+    };
+});
