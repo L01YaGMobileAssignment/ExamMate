@@ -132,7 +132,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                         </Text>
                     </View>
                     <View style={styles.processBarContainer}>
-                        <Text style={styles.text}>Question {currentQuestion + 1}/{quiz_?.questions.length}</Text>
+                        <Text style={styles.text}>{t.question_n} {currentQuestion + 1}/{quiz_?.questions.length}</Text>
                         <View style={styles.processContainer}>
                             <View style={[styles.processBar, { width: `${((currentQuestion + 1) / (quiz_?.questions.length || 1)) * 100}%` }]} />
                         </View>
@@ -144,7 +144,7 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                         selectedAnswer[currentQuestion] === -1 ? styles.disabledPrimaryBtn : styles.primaryBtn,
                         { marginBottom: 20 }
                     ]} disabled={selectedAnswer[currentQuestion] === -1}>
-                        <Text style={selectedAnswer[currentQuestion] === -1 ? styles.disabledBtnText : styles.primaryBtnText}>{currentQuestion === quiz_?.questions.length - 1 ? "Submit" : "Next"}</Text>
+                        <Text style={selectedAnswer[currentQuestion] === -1 ? styles.disabledBtnText : styles.primaryBtnText}>{currentQuestion === quiz_?.questions.length - 1 ? t.submit : t.next}</Text>
                     </TouchableOpacity></> :
                 <>
                     <View style={styles.header} >
@@ -154,17 +154,17 @@ export default function QuizOverviewScreen({ route, navigation }: Props) {
                     </View>
                     <View style={styles.content}>
                         <View style={styles.textContainer}>
-                            <Text style={styles.text}>Your score:</Text>
+                            <Text style={styles.text}>{t.your_score}:</Text>
                             <Text style={styles.text}>{getMark()}/{quiz_?.questions.length}</Text>
                         </View>
                         <View style={styles.separator} />
                         <View style={styles.textContainer}>
-                            <Text style={styles.text}>Estimate time:</Text>
-                            <Text style={styles.text}>{quiz_?.questions.length} minutes</Text>
+                            <Text style={styles.text}>{t.estimate_time}:</Text>
+                            <Text style={styles.text}>{quiz_?.questions.length}{t.minutes}</Text>
                         </View>
                     </View>
                     <TouchableOpacity onPress={() => handleTryAgain()} style={styles.primaryBtn}>
-                        <Text style={styles.primaryBtnText}>Try Again</Text>
+                        <Text style={styles.primaryBtnText}>{t.try_again}</Text>
                     </TouchableOpacity>
                 </>
             }

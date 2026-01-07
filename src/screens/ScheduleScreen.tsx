@@ -11,7 +11,24 @@ import {
   ActivityIndicator
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Calendar } from "react-native-calendars";
+import { Calendar, LocaleConfig } from "react-native-calendars";
+
+LocaleConfig.locales['vi'] = {
+  monthNames: [
+    'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+    'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+  ],
+  monthNamesShort: [
+    'Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6',
+    'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'
+  ],
+  dayNames: ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'],
+  dayNamesShort: ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'],
+  today: "Hôm nay"
+};
+
+LocaleConfig.locales['en'] = LocaleConfig.locales[''];
+
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Platform } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,8 +38,15 @@ import { ScheduleType } from "../types/schedule";
 import { useScheduleStore } from "../store/schedule";
 import { useTranslation } from "../utils/i18n/useTranslation";
 
+const getLocalDateString = (date: Date) => {
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+};
+
 export default function ScheduleScreen({ navigation }: any) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+
+  LocaleConfig.defaultLocale = language === 'vi' ? 'vi' : 'en';
+
   const [selected, setSelected] = useState(() => {
     const today = new Date();
     return today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
@@ -79,7 +103,7 @@ export default function ScheduleScreen({ navigation }: any) {
     const startDate = new Date(item.start_date);
     const endDate = new Date(item.end_date);
 
-    setModalDate(startDate.toISOString().split('T')[0]);
+    setModalDate(getLocalDateString(startDate));
 
     const formatTime = (date: Date) => {
       return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
@@ -114,7 +138,7 @@ export default function ScheduleScreen({ navigation }: any) {
                 setEditingScheduleId(null);
               }
             } catch (error) {
-              Alert.alert(t.error, "Failed to delete schedule");
+              Alert.alert(t.error, t.delete_schedule_fail);
             } finally {
               setIsLoading(false);
             }
@@ -179,7 +203,7 @@ export default function ScheduleScreen({ navigation }: any) {
       setEditingScheduleId(null);
     } catch (error) {
       console.error("Failed to save schedule:", error);
-      Alert.alert(t.error, "Failed to save schedule");
+      Alert.alert(t.error, t.save_schedule_fail);
     } finally {
       setIsSaving(false);
     }
@@ -189,7 +213,7 @@ export default function ScheduleScreen({ navigation }: any) {
   const filteredSchedules = schedules.filter(item => {
     if (!item.start_date) return false;
     const d = new Date(item.start_date);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = getLocalDateString(d);
     return dateStr === selected;
   });
 
@@ -198,7 +222,7 @@ export default function ScheduleScreen({ navigation }: any) {
   schedules.forEach(item => {
     if (item.start_date) {
       const d = new Date(item.start_date);
-      const dateStr = d.toISOString().split('T')[0];
+      const dateStr = getLocalDateString(d);
       markedDates[dateStr] = {
         marked: true,
         dotColor: '#2A74F5'
@@ -241,6 +265,7 @@ export default function ScheduleScreen({ navigation }: any) {
           <>
             <View style={styles.calendarBox}>
               <Calendar
+                key={language} // Force re-render when language changes
                 onDayPress={day => setSelected(day.dateString)}
                 markedDates={markedDates}
                 theme={{
@@ -261,7 +286,7 @@ export default function ScheduleScreen({ navigation }: any) {
             </View>
 
             <Text style={styles.todayTitle}>
-              {selected === new Date().toISOString().split('T')[0] ? t.today : selected}
+              {selected === getLocalDateString(new Date()) ? t.today : selected}
             </Text>
 
             {isLoading ? (
@@ -298,10 +323,10 @@ export default function ScheduleScreen({ navigation }: any) {
                   .map((item, index, array) => {
                     const startDate = new Date(item.start_date);
                     const endDate = new Date(item.end_date);
-                    const dateStr = startDate.toISOString().split('T')[0];
+                    const dateStr = getLocalDateString(startDate);
 
                     const prevItem = index > 0 ? array[index - 1] : null;
-                    const prevDateStr = prevItem ? new Date(prevItem.start_date).toISOString().split('T')[0] : null;
+                    const prevDateStr = prevItem ? getLocalDateString(new Date(prevItem.start_date)) : null;
                     const showDateHeader = dateStr !== prevDateStr;
 
                     const timeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')} - ${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
@@ -331,7 +356,7 @@ export default function ScheduleScreen({ navigation }: any) {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      <TouchableOpacity style={styles.addButton} onPress={handleCreateNewSchedule}>
+      <TouchableOpacity testID="add-schedule-button" style={styles.addButton} onPress={handleCreateNewSchedule}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
 
@@ -431,7 +456,7 @@ export default function ScheduleScreen({ navigation }: any) {
                 })()}
                 mode="time"
                 is24Hour={true}
-                locale="en-GB"
+                locale={language === 'vi' ? 'vi-VN' : 'en-GB'}
                 display="spinner"
                 onChange={(event, selectedDate) => {
                   const currentMode = showTimePicker;

@@ -21,6 +21,7 @@ import { useDocStore } from "../store/docStore";
 import { ScheduleType } from "../types/schedule";
 import { getAllSchedules } from "../services/scheduleService";
 import { useScheduleStore } from "../store/schedule";
+import { useQuizStore } from "../store/quizStore";
 import { norm_colors as colors } from "../template/color";
 import { useTranslation } from "../utils/i18n/useTranslation";
 
@@ -73,6 +74,7 @@ export default function HomeScreen({ navigation }: Props) {
   const [documents, setDocuments] = useState<DocumentType[]>([]);
   const [schedules, setSchedules] = useState<ScheduleType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const generatingQuizzes = useQuizStore((state) => state.generatingQuizzes);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -122,13 +124,6 @@ export default function HomeScreen({ navigation }: Props) {
       />);
   }
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
-  }
 
   const upcomingSchedules = schedules
     .filter(item => {
@@ -165,7 +160,7 @@ export default function HomeScreen({ navigation }: Props) {
         <View style={styles.quickActionsContainer}>
           <TouchableOpacity
             style={[styles.quickButton, styles.quickButtonPrimary]}
-            onPress={() => navigation.navigate("DocumentsTab", {
+            onPress={() => (navigation as any).navigate("DocumentsTab", {
               screen: "Documents"
             })}
           >
@@ -178,8 +173,25 @@ export default function HomeScreen({ navigation }: Props) {
             <Text style={styles.quickButtonTextSecondary}>{t.my_quizzes}</Text>
           </TouchableOpacity>
         </View>
+
+        {generatingQuizzes.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>{t.generating_quizzes}</Text>
+            <View style={styles.generatingList}>
+              {generatingQuizzes.map((quiz, index) => (
+                <View key={index} style={styles.generatingItem}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={styles.generatingText} numberOfLines={1}>{quiz.documentTitle}</Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+
         <Text style={styles.sectionTitle}>{t.recent_documents}</Text>
-        {documents.length > 0 ? (<ScrollView
+        {isLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
+        ) : documents.length > 0 ? (<ScrollView
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           style={styles.recentDocsScroller}
@@ -193,7 +205,9 @@ export default function HomeScreen({ navigation }: Props) {
           </Text>
         )}
         <Text style={styles.sectionTitle}>{t.upcoming_sessions}</Text>
-        {upcomingSchedules.length === 0 ? (
+        {isLoading ? (
+          <ActivityIndicator size="small" color={colors.primary} style={{ marginTop: 20 }} />
+        ) : upcomingSchedules.length === 0 ? (
           <Text style={{ color: colors.textSecondary, textAlign: "center" }}>
             {t.no_upcoming_sessions}
           </Text>
@@ -388,5 +402,26 @@ const styles = StyleSheet.create({
   },
   taskTitle: { fontSize: 15, fontWeight: "600" },
   taskTime: { fontSize: 13, color: "#666" },
-
+  generatingList: {
+    gap: 10,
+  },
+  generatingItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.white,
+    padding: 12,
+    borderRadius: 12,
+    gap: 12,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  generatingText: {
+    fontSize: 16,
+    color: colors.text,
+    fontWeight: "500",
+    flex: 1,
+  },
 });

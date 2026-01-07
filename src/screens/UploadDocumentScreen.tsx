@@ -18,10 +18,15 @@ import { uploadDocument } from "../services/docApiService";
 import { DocumentsStackParamList } from "../navigation/DocumentStackNavigator";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useDocStore } from "../store/docStore";
+import { useTranslation } from "../utils/i18n/useTranslation";
 
-const EntryModeButton = ({ icon, label, onPress }: any) => {
+const EntryModeButton = ({ icon, label, onPress, disabled }: any) => {
   return (
-    <TouchableOpacity style={styles.optionButton} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.optionButton, disabled && { opacity: 0.5 }]}
+      onPress={onPress}
+      disabled={disabled}
+    >
       <Ionicons name={icon} size={24} style={styles.optionIcon} />
       <Text style={styles.optionText}>{label}</Text>
     </TouchableOpacity>
@@ -29,13 +34,15 @@ const EntryModeButton = ({ icon, label, onPress }: any) => {
 };
 type Props = NativeStackScreenProps<DocumentsStackParamList, "DocumentUploadScreen">
 export default function UploadDocumentScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = React.useState<any>(null);
   const [uploading, setUploading] = React.useState(false);
+  const [progress, setProgress] = React.useState(0);
 
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"],
+        type: ["application/pdf", "image/png", "image/jpeg", "text/plain"],
         copyToCacheDirectory: true,
       });
 
@@ -44,8 +51,8 @@ export default function UploadDocumentScreen({ navigation }: Props) {
         if (!mimeType) {
           const name = result.assets[0].name.toLowerCase();
           if (name.endsWith('.pdf')) mimeType = 'application/pdf';
-          else if (name.endsWith('.doc')) mimeType = 'application/msword';
-          else if (name.endsWith('.docx')) mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+          else if (name.endsWith('.png')) mimeType = 'image/png';
+          else if (name.endsWith('.jpg') || name.endsWith('.jpeg')) mimeType = 'image/jpeg';
           else if (name.endsWith('.txt')) mimeType = 'text/plain';
           else mimeType = 'application/octet-stream';
         }
@@ -65,7 +72,7 @@ export default function UploadDocumentScreen({ navigation }: Props) {
     try {
       const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
       if (permissionResult.granted === false) {
-        Alert.alert("Permission to access camera is required!");
+        Alert.alert(t.camera_permission_required);
         return;
       }
 
@@ -107,7 +114,7 @@ export default function UploadDocumentScreen({ navigation }: Props) {
           const blob = await res.blob();
           formData.append("file", blob, selectedFile.name);
         } catch (e) {
-          Alert.alert("Error", "Failed to process file for upload.");
+          Alert.alert(t.error, t.failed_process_file);
           setUploading(false);
           return;
         }
@@ -123,27 +130,30 @@ export default function UploadDocumentScreen({ navigation }: Props) {
     }
 
     try {
-      const response = await uploadDocument(formData);
+      const response = await uploadDocument(formData, (percent) => {
+        setProgress(percent);
+      });
       if (response.status === 200 || response.status === 201) {
         // @ts-ignore
         setSelectedFile(null);
         useDocStore.getState().addDoc(response.data);
         navigation.navigate("DocumentDetail", { document: response.data });
       } else {
-        Alert.alert("Error", "Failed to upload document.");
+        Alert.alert(t.error, t.failed_upload);
       }
     } catch (error: any) {
       if (error?.message?.includes("Invalid server response")) {
         if (error?.response?.data && error.response.data.includes("413 Request Entity Too Large")) {
-          Alert.alert("Error", "File is too large. Please upload a smaller file.");
+          Alert.alert(t.error, t.file_too_large);
         } else {
-          Alert.alert("Error", "Server error. Please try again later.");
+          Alert.alert(t.error, t.server_error_retry);
         }
       } else {
-        Alert.alert("Error", error?.message || "An error occurred during upload.");
+        Alert.alert(t.error, error?.message || t.error_uploading);
       }
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
@@ -152,26 +162,29 @@ export default function UploadDocumentScreen({ navigation }: Props) {
       <View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.headerContainer}>
-            <Text style={styles.headerTitle}>Upload Document</Text>
+            <Text style={styles.headerTitle}>{t.upload_document}</Text>
           </View>
 
-          <Text style={styles.sectionTitle}>Choose Entry Mode</Text>
+          <Text style={styles.sectionTitle}>{t.choose_entry_mode}</Text>
           <EntryModeButton
             icon="document-text-outline"
-            label="File Picker"
+            label={t.file_picker}
             onPress={pickDocument}
+            disabled={uploading}
           />
           <EntryModeButton
             icon="camera"
-            label="Camera"
+            label={t.camera}
             onPress={pickImage}
+            disabled={uploading}
           />
           <EntryModeButton
             icon="cloud-upload-outline"
-            label="Cloud Integrations"
+            label={t.cloud_integrations}
             onPress={() =>
-              Alert.alert("Not implemented", "Functionality not implemented.")
+              Alert.alert(t.not_implemented, t.func_not_implemented)
             }
+            disabled={uploading}
           />
 
           <View style={styles.dropzone}>
@@ -182,10 +195,11 @@ export default function UploadDocumentScreen({ navigation }: Props) {
                   {selectedFile.name}
                 </Text>
                 <TouchableOpacity
-                  style={[styles.browseButton, { marginTop: 20, backgroundColor: colors.danger }]}
+                  style={[styles.browseButton, { marginTop: 20, backgroundColor: colors.danger }, uploading && { opacity: 0.5 }]}
                   onPress={() => setSelectedFile(null)}
+                  disabled={uploading}
                 >
-                  <Text style={styles.browseButtonText}>Remove</Text>
+                  <Text style={styles.browseButtonText}>{t.remove}</Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -193,15 +207,16 @@ export default function UploadDocumentScreen({ navigation }: Props) {
                 <View style={styles.dropzoneIconCircle}>
                   <Ionicons name="cloud-upload" size={28} color={colors.primary} />
                 </View>
-                <Text style={styles.dropzoneTitle}>Tap to upload a file</Text>
+                <Text style={styles.dropzoneTitle}>{t.tap_to_upload}</Text>
                 <Text style={styles.dropzoneSupport}>
-                  Supported: PDF, DOCX, TXT, Images. Max 20MB
+                  {t.supported_files}
                 </Text>
                 <TouchableOpacity
-                  style={styles.browseButton}
+                  style={[styles.browseButton, uploading && { opacity: 0.5 }]}
                   onPress={pickDocument}
+                  disabled={uploading}
                 >
-                  <Text style={styles.browseButtonText}>Browse Files</Text>
+                  <Text style={styles.browseButtonText}>{t.browse_files}</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -220,9 +235,9 @@ export default function UploadDocumentScreen({ navigation }: Props) {
                 {uploading ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                     <ActivityIndicator size="small" color="#fff" />
-                    <Text style={styles.uploadButtonText}>Uploading...</Text>
+                    <Text style={styles.uploadButtonText}>{t.uploading} {progress}%...</Text>
                   </View>
-                ) : "Upload Selected Document"}
+                ) : t.upload_selected}
               </Text>
             </TouchableOpacity>
           )}
