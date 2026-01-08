@@ -31,10 +31,19 @@ export default function RegisterScreen({ navigation }: Props) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleRegister = async () => {
     if (isLoading) return;
     if (!userName || !email || !password || !confirmPassword) {
       Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      Alert.alert("Error", "Please enter a valid email address.");
       return;
     }
     if (password !== confirmPassword) {
