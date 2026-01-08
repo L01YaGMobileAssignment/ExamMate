@@ -17,7 +17,7 @@ interface SettingState {
 const SETTINGS_KEY = 'user_settings';
 
 export const useSettingStore = create<SettingState>((set, get) => ({
-    numberOfQuestions: 20,
+    numberOfQuestions: 5,
     notifyTime: 60,
     language: 'en',
     isLoading: true,

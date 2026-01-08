@@ -43,7 +43,7 @@ export default function SettingScreen() {
         let isValid = true;
         let errorMessage = "";
 
-        if (isNaN(num) || num < 5 || num > 30) {
+        if (isNaN(num) || num < 5 || num > 10) {
             isValid = false;
             errorMessage = t.error_num_questions;
         } else if (isNaN(time) || time <= 0) {
