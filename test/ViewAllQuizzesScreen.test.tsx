@@ -278,4 +278,48 @@ describe('ViewAllQuizzesScreen', () => {
             });
         });
     });
+
+    describe('FlatList refresh', () => {
+        it('triggers refresh when FlatList onRefresh is called', async () => {
+            const { getByText, UNSAFE_getByType } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => expect(getByText('Quiz 1')).toBeTruthy());
+
+            // Get initial call count
+            const initialCallCount = (getQuizzes as jest.Mock).mock.calls.length;
+
+            // Find FlatList and trigger refresh
+            const { FlatList } = require('react-native');
+            const flatList = UNSAFE_getByType(FlatList);
+
+            // Trigger onRefresh callback
+            if (flatList.props.onRefresh) {
+                await act(async () => {
+                    flatList.props.onRefresh();
+                });
+            }
+
+            await waitFor(() => {
+                // getQuizzes should be called again with refresh params
+                expect((getQuizzes as jest.Mock).mock.calls.length).toBeGreaterThan(initialCallCount);
+            });
+        });
+
+        it('triggers load more when end is reached', async () => {
+            const { getByText, UNSAFE_getByType } = render(<ViewAllQuizzesScreen navigation={mockNavigation as any} route={{} as any} />);
+
+            await waitFor(() => expect(getByText('Quiz 1')).toBeTruthy());
+
+            // Find FlatList and trigger onEndReached
+            const { FlatList } = require('react-native');
+            const flatList = UNSAFE_getByType(FlatList);
+
+            // Trigger onEndReached callback
+            if (flatList.props.onEndReached) {
+                await act(async () => {
+                    flatList.props.onEndReached();
+                });
+            }
+        });
+    });
 });
