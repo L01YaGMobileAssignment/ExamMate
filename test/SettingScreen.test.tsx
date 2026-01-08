@@ -126,7 +126,7 @@ describe('SettingScreen', () => {
             });
 
             // Ensure valid inputs
-            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '15');
+            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '7');
             fireEvent.changeText(getByPlaceholderText('input_placeholder_notify'), '30');
 
             // Press save
@@ -149,12 +149,12 @@ describe('SettingScreen', () => {
             const notifyInput = getByPlaceholderText('input_placeholder_notify');
             const saveButton = getByText('save_changes');
 
-            fireEvent.changeText(questionsInput, '15');
+            fireEvent.changeText(questionsInput, '7');
             fireEvent.changeText(notifyInput, '45');
             fireEvent.press(saveButton);
 
             await waitFor(() => {
-                expect(mockSetNumberOfQuestions).toHaveBeenCalledWith(15);
+                expect(mockSetNumberOfQuestions).toHaveBeenCalledWith(7);
                 expect(mockSetNotifyTime).toHaveBeenCalledWith(45);
                 expect(Alert.alert).toHaveBeenCalledWith('success', 'settings_saved');
                 expect(mockNavigation.goBack).toHaveBeenCalled();
@@ -164,12 +164,12 @@ describe('SettingScreen', () => {
         it('saves all settings atomically with Promise.all', async () => {
             const { getByText, getByPlaceholderText } = render(<SettingScreen />);
 
-            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '20');
+            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '8');
             fireEvent.changeText(getByPlaceholderText('input_placeholder_notify'), '60');
             fireEvent.press(getByText('save_changes'));
 
             await waitFor(() => {
-                expect(mockSetNumberOfQuestions).toHaveBeenCalledWith(20);
+                expect(mockSetNumberOfQuestions).toHaveBeenCalledWith(8);
                 expect(mockSetNotifyTime).toHaveBeenCalledWith(60);
                 expect(mockSetLanguage).toHaveBeenCalledWith('en');
             });
@@ -193,13 +193,13 @@ describe('SettingScreen', () => {
             });
         });
 
-        it('shows error for number of questions greater than 30', async () => {
+        it('shows error for number of questions greater than 10', async () => {
             const { getByText, getByPlaceholderText } = render(<SettingScreen />);
 
             const questionsInput = getByPlaceholderText('input_placeholder_questions');
             const saveButton = getByText('save_changes');
 
-            fireEvent.changeText(questionsInput, '50');
+            fireEvent.changeText(questionsInput, '15');
             fireEvent.press(saveButton);
 
             await waitFor(() => {
@@ -239,7 +239,7 @@ describe('SettingScreen', () => {
         it('shows error for zero notification time', async () => {
             const { getByText, getByPlaceholderText } = render(<SettingScreen />);
 
-            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '15');
+            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '7');
             fireEvent.changeText(getByPlaceholderText('input_placeholder_notify'), '0');
             fireEvent.press(getByText('save_changes'));
 
@@ -251,7 +251,7 @@ describe('SettingScreen', () => {
         it('shows error for NaN notification time', async () => {
             const { getByText, getByPlaceholderText } = render(<SettingScreen />);
 
-            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '15');
+            fireEvent.changeText(getByPlaceholderText('input_placeholder_questions'), '7');
             fireEvent.changeText(getByPlaceholderText('input_placeholder_notify'), 'xyz');
             fireEvent.press(getByText('save_changes'));
 
